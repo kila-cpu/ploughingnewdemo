@@ -13,6 +13,11 @@
   const hex = n => Array.from({ length: n }, () => '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'[ri(0, 61)]).join('');
 
   const VENUES = ['The Hub', 'The Dome', 'Agri Pavilion', 'Arcades'];
+  // Outdoor exhibitors are placed in an area based on where they were in previous
+  // years. They book space in that area; NPA allocates the stand number after close.
+  const OUT_AREAS = ['Block 1 – Main Avenue', 'Block 2 – Machinery', 'Block 3 – Machinery', 'Block 4 – Farm Buildings', 'Block 5 – Livestock',
+    'Block 6 – Forestry & Energy', 'Block 7 – Motor & Trucks', 'Block 8 – Trade Village'];
+  const blockOf = area => (area.match(/^Block (\d+)/) || [])[1] || '';
 
   const CATEGORIES = [
     ['Tyres', 'Outdoor'], ['Tools', 'Both'], ['Renewable Energy - House & Home', 'Both'], ['Government Depts., State Bodies, Political Bodies', 'Both'],
@@ -44,7 +49,8 @@
 
   const settings = {
     system: { eventName: 'National Ploughing Championships 2027', eventDates: '21 – 23 September 2027', bookingOpen: true, indoorOpen: true, outdoorOpen: true,
-      vat: 23, adminEmail: 'bookings@npa.example', invoicePrefix: 'NPC27-', depositPct: 50, balanceDue: '2027-06-30' },
+      vat: 23, adminEmail: 'bookings@npa.example', invoicePrefix: 'NPC27-', depositPct: 50, balanceDue: '2027-06-30',
+      bookingClose: '2027-02-28', standsPublished: false },
     electricity: { rateWt: 165, rateAmp: 420, waterRate: 95, waterVat: 13.5, litterRate: 40, vatRate: 23 },
     indoorDates: [
       { id: 1, label: 'Early bird', until: '2026-09-30', price: 1150, unit: 'per 3x3m stand' },
@@ -93,12 +99,26 @@
       stripeId: chance(.7) ? 'cus_' + hex(14) : '', loginExempt: chance(.05),
       perms: { outdoor: !indoor, venues: indoor ? [pick(VENUES)].concat(chance(.3) ? [pick(VENUES)] : []).filter((v, j, a) => a.indexOf(v) === j) : [],
         corners: indoor && chance(.6), allCats: allowedCats.length === 0, cats: allowedCats, woodbark: !indoor || chance(.2) },
+      pastYears: [],
       company: { county, town: TOWNS[county], country: 'Ireland', mobile: '08' + ri(3, 7) + ' ' + ri(100, 999) + ' ' + ri(1000, 9999) },
       lastLogin: daysAfter(iso(2026, 9, 1), ri(0, 60))
     });
   });
+  // Areas and stands from previous years. About one in eight is new and still needs an area.
+  users.forEach(u => {
+    const indoor = u.clientType === 'IN';
+    const isNew = chance(0.12);
+    u.perms.area = isNew ? '' : indoor ? u.perms.venues[0] : pick(OUT_AREAS);
+    if (isNew) return;
+    const years = ri(1, 4);
+    for (let y = 2026; y > 2026 - years; y--) {
+      const area = y === 2026 || chance(.8) ? u.perms.area : indoor ? pick(VENUES) : pick(OUT_AREAS);
+      u.pastYears.push(indoor ? { year: y, area, block: String.fromCharCode(65 + ri(0, 5)), stand: String(ri(1, 60)), unit: String(ri(10, 40)) }
+        : { year: y, area, row: String(ri(1, 32)), block: blockOf(area), stand: String(ri(100, 499)) });
+    }
+  });
   const staff = [['CRM_ADMIN', 'NPA', 'Admin'], ['amoran', 'Anna', 'Moran'], ['jdelaney', 'John', 'Delaney'], ['accounts', 'Accounts', 'Office']];
-  staff.forEach(([u, f, l], i) => users.push({ id: 900 + i, username: u, code: '', name: 'National Ploughing Association', email: u.toLowerCase() + '@npa.example', first: f, last: l, clientType: '', staff: true, superuser: i === 0, active: true, perms: { outdoor: false, venues: [], corners: false, allCats: true, cats: [], woodbark: false }, company: {}, lastLogin: iso(2026, 11, 2, 9, 12) }));
+  staff.forEach(([u, f, l], i) => users.push({ id: 900 + i, username: u, code: '', name: 'National Ploughing Association', email: u.toLowerCase() + '@npa.example', first: f, last: l, clientType: '', staff: true, superuser: i === 0, active: true, perms: { outdoor: false, venues: [], corners: false, allCats: true, cats: [], woodbark: false, area: '' }, pastYears: [], company: {}, lastLogin: iso(2026, 11, 2, 9, 12) }));
 
   const groups = [
     { id: 1, name: 'Administrators', perms: 'Full access', members: ['CRM_ADMIN'] },
@@ -112,7 +132,6 @@
   const payLogs = [];
   const pos = [];
   let oid = 12356;
-  const standCount = {};
   users.filter(u => !u.staff).forEach((u, idx) => {
     if (idx > 39) return;
     const indoor = u.clientType === 'IN';
@@ -122,17 +141,17 @@
     const cat = pick(indoor ? catsFor('Indoor') : catsFor('Outdoor'));
     const units = indoor ? ri(1, 2) : ri(5, 15);
     const hasCorner = indoor && u.perms.corners && chance(0.45);
-    standCount[venue] = (standCount[venue] || 0) + 1;
     const elecWt = chance(.55) ? ri(1, 2) : 0, elecAmp = !indoor && chance(.15) ? 1 : 0;
     const water = !indoor && chance(.25);
     const o = {
-      id: oid--, userId: u.id, clientType: u.clientType, venue,
+      id: oid--, userId: u.id, clientType: u.clientType, venue, area: u.perms.area,
       submitted, submittedDate: subDate, completed: submitted && chance(.45), acceptedTC: submitted,
       insuranceStatus: !submitted ? 'Not uploaded' : pick(['Pending Review', 'Pending Review', 'Approved', 'Approved', 'Approved', 'Rejected']),
       paidStripe: submitted && chance(.35), manufacturer: chance(.3), exporter: chance(.15), employersIns: chance(.8), publicProductsIns: chance(.75), specificIndemnity: chance(.5), noEmployees: chance(.1),
       sharingWith: chance(.2) ? pick(COMPANIES) : '', particulars: indoor ? pick(['Display of crafts and gifts', 'Information stand', 'Product demonstration and sampling', 'Health checks and leaflets']) : pick(['Displaying 2 x trailers', 'Tractors and loaders on display', 'Fencing demonstration', 'Shed and steel frame on display', 'Range of ATVs']),
       otherInfo: '', marquee: '',
-      row: indoor ? '' : String(ri(1, 32)), block: indoor ? String.fromCharCode(65 + ri(0, 5)) : String(ri(1, 8)), stand: String(ri(100, 499)), unit: indoor ? String(standCount[venue] + ri(1, 3) * 10) : '',
+      // Bookings are still open, so no stand has been allocated yet.
+      row: '', block: indoor ? '' : blockOf(u.perms.area), stand: '', unit: '',
       showStand: submitted && chance(.6), comments: '',
       categories: [cat.id], category: cat.id, frontage: units, is18m: !indoor && chance(.4), adminDepth: indoor ? 3 : pick([10, 12, 15, 18]),
       hasCorner, cornerStatus: hasCorner ? pick(['Allocated', 'Allocated', 'Requested']) : 'No Corner',
@@ -198,7 +217,7 @@
     const net = bags * r[0].price + half * r[1].price + (spread ? r[2].price : 0);
     const o = orders.find(x => x.userId === u.id);
     woodbark.push({ id: 1770 - i, userId: u.id, bags, half, spread, total: +(net * 1.135).toFixed(2), submittedDate: daysAfter(iso(2026, 9, 25), ri(0, 35)),
-      delivery: o ? (o.venue ? o.venue + ' ' + o.block + o.stand : 'Row ' + o.row + ', Block ' + o.block + ', Stand ' + o.stand) : 'TBC',
+      delivery: o && o.area ? o.area + ' · stand TBC' : 'TBC',
       status: pick(['New', 'New', 'Confirmed', 'Confirmed', 'Delivered']), notes: '' });
   });
 
@@ -248,5 +267,5 @@
     { at: iso(2026, 10, 30, 10, 44), icon: 'add', what: 'Woodbark Order Form # 1770', kind: 'Woodbark order', href: '#/woodbark/1770' },
     { at: iso(2026, 10, 30, 10, 12), icon: 'add', what: 'Woodbark Order Form # 1769', kind: 'Woodbark order', href: '#/woodbark/1769' }];
 
-  window.SEED = { VENUES, CATEGORIES, COUNTIES, COUNTRIES, settings, users, groups, orders, ins, payLogs, pos, woodbark, docs, emailConfigs, schedules, emailLogs, reports, formats, recent, tierFor };
+  window.SEED = { VENUES, OUT_AREAS, blockOf, CATEGORIES, COUNTIES, COUNTRIES, settings, users, groups, orders, ins, payLogs, pos, woodbark, docs, emailConfigs, schedules, emailLogs, reports, formats, recent, tierFor };
 })();

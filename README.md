@@ -11,6 +11,7 @@ from NPA's brief get working screens.
 | --- | --- |
 | **Dashboard** | Season KPIs, key areas, a "needs attention" queue, bookings by area, recent actions |
 | **Users** ★ | Exhibitor logins, and booking permissions per user: outdoor, which indoor venues, corners, categories, woodbark, login exempt |
+| **Stand allocation** | Exhibitors book space in the area they're assigned (based on previous years) and never pick a stand. After bookings close NPA allocates stand numbers per area: reuse last year's stands, clash checks, assign areas to new exhibitors, then publish and email stand numbers |
 | **Order forms** ★ | Bookings list with filters and bulk actions; the full IN/OU form (stand location, structure, utilities, payment, invoices), live pricing, duplicate, history |
 | **Insurance reviews** ★ | Review queue with a document preview and approve/reject with reason. The exhibitor is emailed and the next review opens |
 | **Corner allocations** ★ | Corner totals per indoor venue, what's left, allocate/decline requests. Outdoor corners can't be booked |
@@ -28,8 +29,11 @@ The exhibitor side, redesigned from the current Trade Booking Portal (Outdoor
 Exhibition) with the same wording, moved to the 2027 season the admin data uses: login and forgot password, welcome
 information, pre-booking documents, terms and conditions (must be agreed before
 the booking form opens), and Step 1 – Contact Details (company, address,
-contact person, VAT, trade arena details) with validation and Save. Later
-booking steps weren't in the screenshots, so Step 2 is a placeholder. Any
+contact person, VAT, trade arena details) with validation and Save. Step 2 –
+Exhibition Space shows the exhibitor's assigned area and past stands and asks
+only for frontage, depth and category; the stand is "to be allocated". Later
+steps (structure, utilities, payment) weren't in the screenshots, so Step 3 is
+a placeholder. Any
 username and password logs in. The logo is a placeholder for NPA's artwork.
 
 All exhibitor names, account codes and figures are invented. Nothing from NPA's

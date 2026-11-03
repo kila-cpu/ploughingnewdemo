@@ -70,9 +70,11 @@ function vUsers() {
     search: [u => u.username, u => u.name, u => u.email, u => u.code],
     cols: [{ h: 'Username', v: u => u.username }, { h: 'Account code', v: u => u.code }, { h: 'Account name', v: u => u.name }, { h: 'Email address', v: u => u.email },
       { h: 'Client type', v: u => u.clientType, html: u => ctag(u.clientType) }, { h: 'Booking access', v: u => u.perms.venues.join() + u.perms.outdoor, html: access, nosort: true },
+      { h: 'Assigned area', v: u => u.perms.area || '', html: u => u.staff ? '' : u.perms.area ? `<span class="small">${esc(u.perms.area)}</span>` : pill('Not assigned', 'orange') },
       { h: 'Staff status', v: u => u.staff, html: u => yesNo(u.staff) }, { h: 'Active', v: u => u.active, html: u => yesNo(u.active) }],
     filters: [{ label: 'client type', k: 'ct', get: u => u.clientType, opts: [['IN', 'Indoor'], ['OU', 'Outdoor']] },
       { label: 'booking access', k: 'acc', opts: [['ou', 'Outdoor', u => u.perms.outdoor], ...D.VENUES.map(v => [v, v, u => u.perms.venues.includes(v)])] },
+      { label: 'assigned area', k: 'area', opts: [['none', 'Not assigned', u => !u.staff && !u.perms.area], ...[...D.OUT_AREAS, ...D.VENUES].map(a => [a, a, u => u.perms.area === a])] },
       { label: 'staff status', k: 'staff', opts: yn(u => u.staff) }, { label: 'superuser status', k: 'su', opts: yn(u => u.superuser) }, { label: 'active', k: 'active', opts: yn(u => u.active) }],
     bulk: [['Activate selected users', ids => setUsers(ids, { active: true }, 'Activated')], ['Deactivate selected users', ids => setUsers(ids, { active: false }, 'Deactivated')],
       ['Email login details to selected', ids => toast(`Login details emailed to ${ids.length} users`)], ['Allow outdoor booking', ids => setPerm(ids, 'outdoor', true)]]
@@ -102,8 +104,10 @@ function vUser(id) {
       u.isNew ? F('Password', 'pw', '', 'password', { help: 'Leave blank to email the exhibitor a set-password link.' }) : F('Password', '', '', 'ro', { html: `<span class="mono">••••••••••</span> &nbsp;<a href="javascript:A.toast('Password reset link sent to ${esc(u.email)}')">Send reset link</a>` }),
       F('Email address', 'email', u.email, 'email'), F('Account name', 'name', u.name, 'text'), F('First name', 'first', u.first), F('Last name', 'last', u.last)]))}
     ${sec('booking', 'Booking permissions', `
-      <div style="padding:16px 18px 0"><div class="banner">${ic('info')}<div>This controls what <b>${esc(u.username || 'this exhibitor')}</b> sees in the exhibitor portal. They can only book the areas and categories ticked here.</div></div></div>
+      <div style="padding:16px 18px 0"><div class="banner">${ic('info')}<div>This controls what <b>${esc(u.username || 'this exhibitor')}</b> sees in the exhibitor portal. They book space in their <b>assigned area</b> only and never choose a stand; NPA allocates stand numbers after bookings close.</div></div></div>
       ${fields([F('Client type', 'clientType', u.clientType, 'select', { opts: [['OU', 'Outdoor (OU)'], ['IN', 'Indoor (IN)'], ['', '— Staff / none']], on: 'A.userLive()', help: 'Sets which order form they get: IN Form or OU Form.' }),
+        F('Assigned area', 'perms.area', u.perms.area || '', 'select', { opts: [['', '— Not assigned yet'], ...(u.clientType === 'IN' ? D.VENUES : D.OUT_AREAS).map(a => [a, a])], help: 'Based on where they exhibited in previous years. This is the only area they can book in.' }),
+        F('Previous years', '', '', 'ro', { html: (u.pastYears || []).length ? u.pastYears.map(p => `<div class="small"><b>${p.year}</b> · ${esc(p.area)} · ${esc(u.clientType === 'IN' ? p.block + p.stand : 'Row ' + p.row + ', Stand ' + p.stand)}</div>`).join('') : '<span class="dim small">New exhibitor, no previous stands</span>' }),
         F('Can order woodbark', 'perms.woodbark', u.perms.woodbark, 'checkbox', { help: 'Shows the woodbark order form in their portal.' }),
         F('Outdoor exhibition space', 'perms.outdoor', u.perms.outdoor, 'checkbox', { help: 'Can book outdoor frontage. Outdoor corners cannot be booked.', on: 'A.userLive()' }),
         F('Can request a corner stand', 'perms.corners', u.perms.corners, 'checkbox', { help: 'Indoor venues only. Subject to the corners left in Corner allocations.' }),

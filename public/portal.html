@@ -186,6 +186,22 @@ main{max-width:1120px;margin:0 auto;padding:28px 24px 120px}
 .agree .chk{font-weight:600;font-size:15px}
 .agree small{color:var(--muted);font-style:italic}
 
+.area{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+.area-name{font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--green-800)}
+.past{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.past span{font-size:13px;background:var(--line-2);border-radius:999px;padding:4px 12px;color:var(--ink-2)} .past b{margin-right:4px}
+.stand-tbc{border:1.5px dashed #c9d2cc;border-radius:12px;padding:12px 18px;text-align:center;min-width:190px}
+.stand-tbc small{display:block;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.stand-tbc b{display:block;font-size:17px;margin:2px 0} .stand-tbc span{font-size:12.5px;color:var(--muted)}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.stepper button{border:0;background:var(--line-2);width:44px;height:46px;font-size:20px;color:var(--ink-2)} .stepper button:hover{background:var(--green-100)}
+.stepper input{width:64px;border:0;outline:0;text-align:center;font:inherit;font-size:18px;font-weight:700;-moz-appearance:textfield}
+.stepper input::-webkit-inner-spin-button{-webkit-appearance:none}
+.stepper span{color:var(--muted);padding-right:10px}
+.fld textarea{flex:1;border:0;outline:0;background:none;font:inherit;color:var(--ink);padding:24px 14px 10px;resize:vertical}
+.fld textarea:focus+label,.fld textarea:not(:placeholder-shown)+label{top:6px;font-size:11.5px;font-weight:600;color:var(--green-700)}
+.est{width:100%;border-collapse:collapse;font-size:14.5px} .est td{padding:9px 0;border-bottom:1px solid var(--line-2)} .est td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.est td span{display:block;font-size:12.5px;color:var(--muted)} .est .tot td{font-weight:700;font-size:16px;border:0}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;opacity:0;transition:all .25s;z-index:99;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .wf{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--line-2);color:var(--muted);border-radius:999px;padding:3px 10px}
@@ -252,7 +268,13 @@ const S = {
   seen: store.get('seen', []),
   agreed: store.get('agreed', false),
   saved: store.get('form', null),
+  space: store.get('space', null),
 };
+// The sample exhibitor's area comes from where they were in previous years (set by NPA in the admin).
+const PROFILE = { area: 'Block 2 – Machinery', past: [[2026, 'Row 12 · Stand 214'], [2025, 'Row 12 · Stand 210'], [2024, 'Row 11 · Stand 206']] };
+const CATS = ['Machinery', 'Machinery - plant', 'Machinery - trailers', 'Machinery - atvs', 'Machinery - transporters', 'Tyres', 'Tools', 'Pumps and Allied Equipment', 'Renewable Energy', 'Buildings Farm', 'Livestock - equipment', 'Forestry and Related Industries'];
+const RATE = { now: 165, later: 185, unit: 'per metre frontage' };
+let space = { frontage: 8, deep: false, category: 'Machinery', particulars: '', sharing: '', ...(S.space || {}) };
 const BLANK = { company: '', website: '', addr1: '', addr2: '', town: '', postcode: '', country: 'Ireland', first: '', last: '', landCode: '+353', land: '', mobCode: '+353', mob: '', email: '', notVat: false, vatExempt: false, vatCountry: 'Ireland', vatNo: '', signage: '', sameAsCompany: false, siteName: '', siteCode: '+353', siteNo: '' };
 let form = { ...BLANK, ...(S.saved || {}) };
 let tried = false;
@@ -260,7 +282,7 @@ let tried = false;
 const DOCS = ['Outdoor Exhibitors Manual', 'Outdoor Exhibitors - Porch Manual', 'Outdoor Pre-Booking Guidelines', 'Outdoor Site Specifications', 'Outdoor Rate Card', 'Important Dates', 'Outdoor Fire Register', 'Outdoor Regional Broadband', 'Terms and Conditions', 'Outdoor - Fire Safety Checklist'];
 const COUNTRIES = ['Ireland', 'Northern Ireland', 'United Kingdom', 'Austria', 'Belgium', 'Denmark', 'France', 'Germany', 'Italy', 'Netherlands', 'Poland', 'Spain', 'Sweden', 'United States', 'Other'];
 const CODES = ['+353', '+44', '+33', '+49', '+31', '+1'];
-const STEPS = [['welcome', 'Welcome'], ['documents', 'Pre-booking information'], ['terms', 'Terms & conditions'], ['contact', 'Step 1 · Contact details'], ['next', 'Step 2 · Stand booking']];
+const STEPS = [['welcome', 'Welcome'], ['documents', 'Pre-booking information'], ['terms', 'Terms & conditions'], ['contact', 'Step 1 · Contact details'], ['space', 'Step 2 · Exhibition space'], ['next', 'Step 3 · Structure & payment']];
 
 // ---------- chrome ----------
 function chrome(active, body) {
@@ -283,7 +305,7 @@ function chrome(active, body) {
     }).join('')}</ol>
   </header><main>${body}</main>`;
 }
-function maxStep() { return S.agreed ? (S.saved && complete(S.saved) ? 4 : 3) : 2; }
+function maxStep() { return !S.agreed ? 2 : !(S.saved && complete(S.saved)) ? 3 : S.space ? 5 : 4; }
 
 // ---------- login ----------
 function vLogin(forgot) {
@@ -363,8 +385,9 @@ function fld(label, id, val, o = {}) {
   const tip = o.tip ? `<span class="tip" tabindex="0">${ic('info')}<span class="bubble">${o.tip}</span></span>` : '';
   const pre = o.pre ? `<select class="pre" aria-label="Country code" onchange="A.set('${o.pre[0]}',this.value)">${CODES.map(c => `<option${c === o.pre[1] ? ' selected' : ''}>${c}</option>`).join('')}</select>` : '';
   let input;
-  if (o.options) input = `<select id="${id}" onchange="A.set('${id}',this.value)">${o.options.map(c => `<option${c === val ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select><label for="${id}">${label}</label><span class="caret">${ic('down')}</span>`;
-  else input = `<input id="${id}" type="${o.type || 'text'}" value="${esc(val)}" placeholder=" " ${o.attrs || ''} ${o.ro ? 'readonly' : ''} ${o.raw ? '' : `oninput="A.set('${id}',this.value)"`}><label for="${id}">${label}${o.req ? ' <span class="req">*</span>' : ''}</label>`;
+  const h = o.sp ? `A.sp('${id}',this.value,1)` : `A.set('${id}',this.value)`;
+  if (o.options) input = `<select id="${id}" onchange="${h}">${o.options.map(c => `<option${c === val ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select><label for="${id}">${label}</label><span class="caret">${ic('down')}</span>`;
+  else input = `<input id="${id}" type="${o.type || 'text'}" value="${esc(val)}" placeholder=" " ${o.attrs || ''} ${o.ro ? 'readonly' : ''} ${o.raw ? '' : `oninput="${h}"`}><label for="${id}">${label}${o.req ? ' <span class="req">*</span>' : ''}</label>`;
   const end = o.end || tip ? `<span class="end">${o.end || ''}${tip}</span>` : '';
   return `<div class="fld${pre ? ' has-pre' : ''}${o.err ? ' err' : ''} ${o.cls || ''}" data-f="${id}"><div class="box">${pre}${input}${end}</div>${o.err ? `<div class="help">${o.err}</div>` : o.help ? `<div class="help">${o.help}</div>` : ''}</div>`;
 }
@@ -435,13 +458,52 @@ function hint() {
 }
 
 // ---------- step 2 placeholder ----------
+// ---------- step 2: exhibition space ----------
+// Exhibitors book space in their assigned area only. They never pick a stand: NPA allocates it after bookings close.
+const money = n => '€' + n.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function vSpace() {
+  const sp = space, net = sp.frontage * RATE.now, vat = net * .23;
+  return chrome('space', `
+    <div class="ph"><div class="eyebrow">Booking form</div><h2>Step 2 - Exhibition Space</h2><p>Tell us how much space you need in your area. Your stand number is allocated by the NPA.</p></div>
+    <div class="card"><div class="hd"><span class="ico">${ic('pin')}</span><div><h3>Your area</h3><small>Assigned by the NPA based on where you exhibited in previous years</small></div></div><div class="bd">
+      <div class="area"><div><div class="lbl" style="margin:0 0 4px">Outdoor exhibition area</div><div class="area-name">${PROFILE.area}</div>
+        <div class="past">${PROFILE.past.map(([y, l]) => `<span><b>${y}</b> ${l}</span>`).join('')}</div></div>
+        <div class="stand-tbc"><small>Your stand</small><b>To be allocated</b><span>after 28th February 2027</span></div></div>
+      <div class="notice" style="margin-top:18px">${ic('info')}<div><p><b>You don't choose a stand number.</b> Once bookings close on 28th February 2027, the NPA allocates every stand within its area. We'll email you your stand number and it will show here.</p>
+        <p>Need to move to a different area? Contact <a href="mailto:npaexhibition@npa.ie">npaexhibition@npa.ie</a> before you book.</p></div></div>
+    </div></div>
+    <div class="card"><div class="hd"><span class="ico">${ic('build')}</span><div><h3>Space required</h3><small>Outdoor sites are booked by the metre of frontage</small></div></div><div class="bd">
+      <div class="grid">
+        <div class="c6"><div class="lbl">Frontage (metres)</div>
+          <div class="stepper"><button type="button" onclick="A.front(-1)" aria-label="Less">−</button><input id="frontage" type="number" min="5" max="60" value="${sp.frontage}" onchange="A.front(0,this.value)"><span>m</span><button type="button" onclick="A.front(1)" aria-label="More">+</button></div>
+          <div class="help" style="font-size:12.5px;color:var(--muted);margin-top:6px">Minimum 5 metres.</div></div>
+        <div class="c6"><div class="lbl">Site depth</div><div class="seg">
+          <label class="chk opt"><input type="radio" name="depth" ${sp.deep ? '' : 'checked'} onchange="A.sp('deep',false)">Standard depth</label>
+          <label class="chk opt"><input type="radio" name="depth" ${sp.deep ? 'checked' : ''} onchange="A.sp('deep',true)">18m deep site</label></div></div>
+        ${fld('Category', 'category', sp.category, { cls: 'c6', options: CATS, sp: true, help: 'The categories NPA has opened for your area.' })}
+        ${fld('Sharing your stand with (optional)', 'sharing', sp.sharing, { cls: 'c6', sp: true })}
+        <div class="c12 fld"><div class="box"><textarea id="particulars" rows="3" placeholder=" " oninput="A.sp('particulars',this.value,1)">${esc(sp.particulars)}</textarea><label for="particulars">What will you display?</label></div></div>
+      </div>
+    </div></div>
+    <div class="card"><div class="hd"><span class="ico">${ic('vat')}</span><div><h3>Estimated cost</h3><small>Final price is confirmed on your invoice</small></div></div><div class="bd">
+      <table class="est"><tr><td>Space · ${sp.frontage}m × ${money(RATE.now)} <span>Standard rate, ${RATE.unit}</span></td><td>${money(net)}</td></tr>
+        <tr><td>VAT 23%</td><td>${money(vat)}</td></tr><tr class="tot"><td>Total</td><td>${money(net + vat)}</td></tr></table>
+      <p style="margin:12px 0 0;font-size:13.5px;color:var(--muted)">Bookings received after 28th February 2027 are charged at ${money(RATE.later)} ${RATE.unit}.</p>
+    </div></div>
+    <div class="actbar"><div class="in"><span class="hint">${PROFILE.area} · ${sp.frontage}m frontage</span>
+      <button class="btn ghost" onclick="go('contact')">${ic('back')}Back</button>
+      <button class="btn sec" onclick="A.saveSpace()">${ic('save')}Save</button>
+      <button class="btn pri" onclick="A.saveSpace(true)">Next ${ic('next')}</button></div></div>`);
+}
+
+// ---------- step 3 placeholder ----------
 function vNext() {
-  const f = form;
-  const rows = [['Company', f.company], ['Contact', `${f.first} ${f.last}`], ['Email', f.email], ['Mobile', `${f.mobCode} ${f.mob}`], ['Address', [f.addr1, f.town, f.country].filter(Boolean).join(', ')], ['VAT', f.notVat ? 'Not VAT registered' : f.vatExempt ? 'VAT exempt' : f.vatNo], ['Trade arena signage', f.signage || '—'], ['Site contact', `${f.siteName} · ${f.siteCode} ${f.siteNo}`]];
+  const f = form, sp = space;
+  const rows = [['Company', f.company], ['Contact', `${f.first} ${f.last}`], ['Email', f.email], ['Mobile', `${f.mobCode} ${f.mob}`], ['Area', PROFILE.area], ['Stand', 'To be allocated by the NPA'], ['Space', `${sp.frontage}m frontage${sp.deep ? ', 18m deep' : ''}`], ['Category', sp.category]];
   return chrome('next', `<div class="card"><div class="empty"><div class="ico">${ic('check')}</div>
-    <h3>Contact details saved</h3><p style="margin:0 auto;max-width:520px">The next steps of the booking form (stand location, structure, utilities and payment) weren't in the screenshots we were sent, so they aren't wireframed yet.</p>
+    <h3>Space request saved</h3><p style="margin:0 auto;max-width:540px">The remaining steps of the booking form (structure, utilities and payment) weren't in the screenshots we were sent, so they aren't wireframed yet.</p>
     <div class="summary">${rows.map(([k, v]) => `<div><small>${k}</small>${esc(v)}</div>`).join('')}</div>
-    <div style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn sec" onclick="go('contact')">${ic('back')}Edit contact details</button><a class="btn pri" href="index.html#/orders" style="text-decoration:none">See it in the admin ${ic('ext')}</a></div>
+    <div style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn sec" onclick="go('space')">${ic('back')}Edit exhibition space</button><a class="btn pri" href="index.html#/allocation" style="text-decoration:none">See stand allocation in the admin ${ic('ext')}</a></div>
   </div></div>`);
 }
 
@@ -456,6 +518,13 @@ const A = {
   reset(e) { e.preventDefault(); if (!$('#fu').value.trim()) return toast('Enter your username or email'); toast('If that account exists, a reset link is on its way'); go('login'); },
   logout() { S.user = null; store.set('user', null); go('login'); },
   open(i) { if (!S.seen.includes(i)) { S.seen.push(i); store.set('seen', S.seen); } toast(`Opens ${DOCS[i]}.pdf in a new tab`); render(); },
+  front(d, v) { const n = Math.max(5, Math.min(60, Math.round(v != null ? +v || 5 : space.frontage + d))); space.frontage = n; rerender(); },
+  sp(k, v, soft) { space[k] = v; if (!soft) rerender(); },
+  saveSpace(next) {
+    for (const k of ['category', 'sharing']) { const el = document.getElementById(k); if (el) space[k] = el.value; }
+    S.space = { ...space }; store.set('space', S.space);
+    if (next) go('next'); else toast('Saved. You can come back and finish this later.');
+  },
   agree(v) { S.agreed = v; store.set('agreed', v); $('#startbtn').disabled = !v; },
   set(k, v) {
     form[k] = v;
@@ -470,20 +539,21 @@ const A = {
     tried = true;
     const e = errors(form);
     if (Object.keys(e).length) { rerender(); const first = document.querySelector('.fld.err'); first?.scrollIntoView({ behavior: 'smooth', block: 'center' }); first?.querySelector('input,select')?.focus({ preventScroll: true }); toast(`Please complete the ${Object.keys(e).length} highlighted field${Object.keys(e).length > 1 ? 's' : ''}`); return; }
-    S.saved = { ...form }; store.set('form', S.saved); go('next');
+    S.saved = { ...form }; store.set('form', S.saved); go('space');
   },
 };
 document.addEventListener('click', () => $('#acct')?.classList.remove('open'));
 function rerender() { const y = scrollY; render(); scrollTo(0, y); }
 
 // ---------- router ----------
-const ROUTES = { login: () => vLogin(), forgot: () => vLogin(true), welcome: vWelcome, documents: vDocuments, terms: vTerms, contact: vContact, next: vNext };
+const ROUTES = { login: () => vLogin(), forgot: () => vLogin(true), welcome: vWelcome, documents: vDocuments, terms: vTerms, contact: vContact, space: vSpace, next: vNext };
 function render() {
   let r = location.hash.replace(/^#\/?/, '') || 'login';
   if (!ROUTES[r]) r = 'login';
   if (!S.user && r !== 'login' && r !== 'forgot') r = 'login';
-  if ((r === 'contact' || r === 'next') && !S.agreed) r = 'terms';
-  if (r === 'next' && !(S.saved && complete(S.saved))) r = 'contact';
+  if ((r === 'contact' || r === 'space' || r === 'next') && !S.agreed) r = 'terms';
+  if ((r === 'space' || r === 'next') && !(S.saved && complete(S.saved))) r = 'contact';
+  if (r === 'next' && !S.space) r = 'space';
   if (location.hash !== '#/' + r) history.replaceState(null, '', '#/' + r);
   document.title = r === 'login' || r === 'forgot' ? 'Login · Trade Booking Portal' : 'Trade Booking Portal';
   $('#root').innerHTML = ROUTES[r]();

@@ -49,7 +49,7 @@ function blankOrder(userId) {
   const t = structuredClone(D.orders[0]);
   const indoor = u.clientType === 'IN';
   Object.assign(t, { id: Math.max(...D.orders.map(o => o.id)) + 1, userId: u.id, clientType: u.clientType || 'OU', venue: indoor ? (u.perms.venues[0] || D.VENUES[0]) : '', submitted: false, submittedDate: '', completed: false, acceptedTC: false,
-    insuranceStatus: 'Not uploaded', paidStripe: false, sharingWith: '', particulars: '', otherInfo: '', marquee: '', row: '', block: '', stand: '', unit: '', showStand: false, comments: '',
+    insuranceStatus: 'Not uploaded', paidStripe: false, sharingWith: '', particulars: '', otherInfo: '', marquee: '', area: u.perms.area || '', row: '', block: indoor ? '' : D.blockOf(u.perms.area || ''), stand: '', unit: '', showStand: false, comments: '',
     frontage: indoor ? 1 : 6, is18m: false, hasCorner: false, cornerStatus: 'No Corner', grandTotal: 0, pdf: '', invoice: '', insuranceFile: '', history: [], isNew: true,
     account: { first: u.first, last: u.last, landline: u.landline, email: u.email }, company: { ...t.company, name: u.name, signage: u.name.toUpperCase() } });
   t.pay = { card: false, full: false, submitted: false, bank: false, cheque: false, po: false, poNumber: '', terms: false, marketing: false, confirmed: false, txn: '' };
@@ -91,9 +91,10 @@ function vOrder(id) {
         F('Public products ins', 'publicProductsIns', o.publicProductsIns, 'checkbox'), F('Specific indemnity', 'specificIndemnity', o.specificIndemnity, 'checkbox'), F('No employees', 'noEmployees', o.noEmployees, 'checkbox')].join('')}</div></div>`,
       F('Sharing with', 'sharingWith', o.sharingWith, 'textarea', { rows: 2, ph: 'Other companies sharing this stand' }), F('Particulars', 'particulars', o.particulars, 'textarea', { rows: 2 }),
       F('Other information', 'otherInfo', o.otherInfo, 'textarea', { rows: 2 }), F('Marquee', 'marquee', o.marquee, 'textarea', { rows: 2 })]))}
-    ${sec('stand', 'Stand location', fields([
-      indoor ? F('Venue', 'venue', o.venue, 'select', { opts: D.VENUES, on: 'A.orderLive()' }) : F('Row', 'row', o.row),
-      F('Block', 'block', o.block), F('Stand', 'stand', o.stand), indoor ? F('Unit number', 'unit', o.unit) : '',
+    ${sec('stand', 'Stand location', `<div style="padding:16px 18px 0"><div class="banner">${ic('info')}<div>The exhibitor books space in their <b>assigned area</b> only and never picks a stand. NPA allocates the stand number after bookings close, in <a href="#/allocation">Stand allocation</a>.${lastYear(o) ? ` Last year: <b>${esc(pastLoc(o.clientType, lastYear(o)))}</b>.` : ''}</div></div></div>` + fields([
+      F('Assigned area', 'area', o.area, 'select', { opts: [['', '— Not assigned'], ...(indoor ? D.VENUES : D.OUT_AREAS).map(a => [a, a])], on: 'A.orderLive()', help: "Set from the exhibitor's previous years. Change it on the user to move them for future seasons." }),
+      indoor ? '' : F('Row', 'row', o.row, 'text', { ph: 'Allocated by NPA' }),
+      F('Block', 'block', o.block, 'text', { ph: indoor ? 'Allocated by NPA' : '' }), F('Stand', 'stand', o.stand, 'text', { ph: 'Allocated by NPA' }), indoor ? F('Unit number', 'unit', o.unit, 'text', { ph: 'Allocated by NPA' }) : '',
       F('Show stand details to exhibitor', 'showStand', o.showStand, 'checkbox', { full: true, help: 'When enabled, exhibitors can see their stand, row, and block numbers on their dashboard.' }),
       F('Comments', 'comments', o.comments, 'textarea', { full: true, rows: 2, ph: 'Internal notes, not shown to the exhibitor' })], 'three'))}
     ${sec('status', 'Status & insurance', fields([
@@ -154,7 +155,7 @@ function vOrder(id) {
     </form>
     ${savebar('A.saveOrder', o.isNew ? '' : 'A.delOrder()')}`);
 }
-A.orderLive = () => { collect(document.getElementById('form'), draft); if (draft.clientType === 'OU') { draft.venue = ''; draft.hasCorner = false; draft.cornerStatus = 'No Corner'; } else if (!draft.venue) draft.venue = D.VENUES[0]; if (!draft.hasCorner) draft.cornerStatus = 'No Corner'; const y = scrollY; render(); scrollTo(0, y); };
+A.orderLive = () => { collect(document.getElementById('form'), draft); if (draft.clientType === 'OU') { draft.venue = ''; draft.hasCorner = false; draft.cornerStatus = 'No Corner'; if (D.VENUES.includes(draft.area)) draft.area = ''; draft.block = D.blockOf(draft.area || ''); } else { if (D.OUT_AREAS.includes(draft.area)) draft.area = ''; draft.venue = draft.area || draft.venue || D.VENUES[0]; } if (!draft.hasCorner) draft.cornerStatus = 'No Corner'; const y = scrollY; render(); scrollTo(0, y); };
 A.orderLiveSoft = () => { clearTimeout(A._t); A._t = setTimeout(() => { const a = document.activeElement?.name; A.orderLive(); if (a) { const el = document.querySelector(`[name="${a}"]`); el?.focus(); } }, 450); };
 A.saveOrder = mode => {
   collect(document.getElementById('form'), draft);
@@ -258,6 +259,86 @@ A.corner = (id, st) => {
   o.grandTotal = priceOrder(o).total; o.history.push({ at: now(), who: 'CRM_ADMIN', what: 'Corner ' + (st === 'Allocated' ? 'allocated' : 'released') });
   toast(st === 'Allocated' ? `Corner allocated to ${o.company.name}` : 'Corner released'); render();
 };
+
+// ---------- stand allocation ----------
+// Exhibitors only book space in the area they were given (based on previous years).
+// Once bookings close, NPA gives every booking a stand number here and then publishes them.
+const lastYear = o => { const p = (U(o).pastYears || [])[0]; return p && p.year === 2026 && p.area === o.area ? p : null; };
+const pastLoc = (ct, p) => ct === 'IN' ? `${p.area} · ${p.block}${p.stand}` : `Row ${p.row} · Stand ${p.stand}`;
+const allocKey = o => o.stand ? [o.area, o.clientType === 'IN' ? o.block : o.row, o.stand].join('|').toLowerCase() : '';
+function clashes() { const seen = {}; D.orders.forEach(o => { const k = allocKey(o); if (k) (seen[k] = seen[k] || []).push(o.id); }); return new Set(Object.values(seen).filter(a => a.length > 1).flat()); }
+const allocUI = () => (ui.alloc = ui.alloc || { area: 'all', show: 'todo' });
+function vAlloc() {
+  const st = allocUI(), sys = D.settings.system, cl = clashes();
+  const booked = D.orders.filter(o => o.submitted);
+  const areas = [...D.OUT_AREAS, ...D.VENUES];
+  const noArea = booked.filter(o => !o.area);
+  let rows = booked.filter(o => st.area === 'all' || (st.area === '' ? !o.area : o.area === st.area));
+  if (st.show === 'todo') rows = rows.filter(o => !o.stand || cl.has(o.id));
+  rows.sort((a, b) => (a.area || '~').localeCompare(b.area || '~') || a.company.name.localeCompare(b.company.name));
+  const done = booked.filter(o => o.stand).length;
+  const closed = new Date() > new Date(sys.bookingClose + 'T23:59:59');
+  const inp = (o, k, ph) => `<input class="inp" style="width:${k === 'stand' ? 78 : 62}px;padding:6px 8px" value="${esc(o[k])}" placeholder="${ph}" onchange="A.alloc(${o.id},'${k}',this.value)">`;
+  const chip = (v, label, n) => `<button class="chip ${st.area === v ? 'on' : ''}" onclick="A.allocArea('${esc(v)}')">${esc(label)}${n != null ? ` <span style="opacity:.7">${n}</span>` : ''}</button>`;
+  return shell([['Order'], ['Stand allocation']], `
+    ${head('Stand allocation', "Exhibitors book space in the area they're assigned, based on where they were in previous years. They never pick a stand: NPA allocates every stand number here after bookings close.",
+      btn('Allocation sheet', 'A.allocCsv()', '', 'download') + btn("Use last year's stands", 'A.autoAlloc()', '', 'history') + btn(sys.standsPublished ? 'Republish stand numbers' : 'Publish stand numbers', 'A.publishStands()', 'pri', 'send'))}
+    ${sys.standsPublished ? `<div class="banner ok">${ic('check')}<div>Stand numbers are <b>published</b>. Exhibitors can see their stand in the portal. Changing a stand now needs a fresh publish to email them.</div></div>`
+      : `<div class="banner warn">${ic('alert')}<div>${closed ? 'Bookings are closed.' : `Bookings close on <b>${fd(sys.bookingClose)}</b>.`} You can draft allocations at any time; exhibitors don't see a stand number until you <b>publish</b>.</div></div>`}
+    <div class="grid g4" style="margin:16px 0">
+      <div class="card kpi"><div class="k">${ic('form')}Bookings submitted</div><div class="v">${booked.length}</div><div class="s">across ${new Set(booked.map(o => o.area).filter(Boolean)).size} areas</div></div>
+      <div class="card kpi"><div class="k">${ic('check')}Stands allocated</div><div class="v">${done}</div><div class="bar" style="margin-top:10px"><i style="width:${booked.length ? done / booked.length * 100 : 0}%"></i></div></div>
+      <div class="card kpi"><div class="k">${ic('map')}Still to allocate</div><div class="v">${booked.length - done}</div><div class="s">${booked.filter(o => !o.stand && lastYear(o)).length} have a stand from last year</div></div>
+      <div class="card kpi"><div class="k">${ic('alert')}Needs attention</div><div class="v">${cl.size + noArea.length}</div><div class="s">${cl.size} clashing · ${noArea.length} with no area</div></div></div>
+    <div class="card"><div class="card-h" style="flex-wrap:wrap;gap:10px"><h3>Bookings by area</h3>
+      <div class="r row" style="gap:6px"><button class="chip ${st.show === 'todo' ? 'on' : ''}" onclick="A.allocShow('todo')">To allocate</button><button class="chip ${st.show === 'all' ? 'on' : ''}" onclick="A.allocShow('all')">All bookings</button></div></div>
+      <div class="row wrap" style="gap:6px;padding:0 18px 14px">${chip('all', 'All areas')}${areas.map(a => { const b = booked.filter(o => o.area === a); return b.length ? chip(a, a, `${b.filter(o => o.stand).length}/${b.length}`) : ''; }).join('')}${noArea.length ? chip('', 'No area yet', noArea.length) : ''}</div>
+      <div class="tbl-wrap"><table class="t"><thead><tr><th class="nosort">Form</th><th class="nosort">Company</th><th class="nosort">Area</th><th class="nosort">Space booked</th><th class="nosort">Last year (2026)</th><th class="nosort">Row / block</th><th class="nosort">Stand</th><th class="nosort">Unit</th><th class="nosort">Status</th></tr></thead><tbody>
+      ${rows.map(o => { const indoor = o.clientType === 'IN', ly = lastYear(o);
+        const status = !o.area ? pill('No area', 'orange') : cl.has(o.id) ? pill('Clash', 'red') : o.stand ? pill('Allocated', 'green') : pill('Not allocated', 'grey');
+        return `<tr><td><a class="lnk" href="#/orders/${o.id}">${esc(formLabel(o))}</a></td><td>${esc(o.company.name)}</td>
+          <td>${o.area ? esc(o.area) : `<select class="inp" style="width:190px;padding:6px 8px" onchange="A.setArea(${o.id},this.value)"><option value="">Assign an area…</option>${(indoor ? D.VENUES : D.OUT_AREAS).map(a => `<option>${esc(a)}</option>`).join('')}</select>`}</td>
+          <td>${indoor ? `${o.frontage} unit${o.frontage > 1 ? 's' : ''}${o.hasCorner ? ' + corner' : ''}` : `${o.frontage}m × ${o.is18m ? 18 : o.adminDepth}m`}</td>
+          <td>${ly ? `<span class="small">${esc(pastLoc(o.clientType, ly))}</span>${o.stand ? '' : ` <a href="javascript:A.useLast(${o.id})" class="small">Use</a>`}` : `<span class="dim small">${U(o).pastYears?.length ? 'Different area' : 'New exhibitor'}</span>`}</td>
+          <td>${o.area ? (indoor ? inp(o, 'block', 'A') : inp(o, 'row', 'Row')) : ''}</td><td>${o.area ? inp(o, 'stand', 'Stand') : ''}</td><td>${o.area && indoor ? inp(o, 'unit', '') : ''}</td><td>${status}</td></tr>`; }).join('') || `<tr><td colspan="9" class="empty">${st.show === 'todo' ? 'Every booking here has a stand. Switch to All bookings to review them.' : 'No submitted bookings in this area.'}</td></tr>`}
+      </tbody></table></div></div>`);
+}
+A.allocArea = v => { allocUI().area = v; render(); };
+A.allocShow = v => { allocUI().show = v; render(); };
+const keepScroll = () => { const y = scrollY; render(); scrollTo(0, y); };
+A.alloc = (id, k, v) => {
+  const o = orderById(id); o[k] = v.trim();
+  if (o.clientType === 'OU') o.block = D.blockOf(o.area);
+  o.history.push({ at: now(), who: 'CRM_ADMIN', what: `Stand ${k} set to "${o[k]}"` });
+  if (clashes().has(id)) toast(`That stand is already allocated in ${o.area}`);
+  keepScroll();
+};
+A.setArea = (id, a) => { const o = orderById(id); o.area = a; if (o.clientType === 'IN') o.venue = a; else o.block = D.blockOf(a); U(o).perms.area = a; toast(`${o.company.name} assigned to ${a}`); keepScroll(); };
+A.useLast = id => { const o = orderById(id), p = lastYear(o); Object.assign(o, o.clientType === 'IN' ? { block: p.block, stand: p.stand, unit: p.unit } : { row: p.row, stand: p.stand }); if (clashes().has(id)) toast("Last year's stand is already taken this year"); keepScroll(); };
+A.autoAlloc = () => {
+  const todo = D.orders.filter(o => o.submitted && !o.stand && lastYear(o));
+  if (!todo.length) return toast("No unallocated bookings have last year's stand to reuse");
+  confirmBox("Use last year's stands", `Give ${todo.length} bookings the same stand they had in 2026, where it's still free? Anything that would clash is left for you to allocate by hand.`, 'Allocate', () => {
+    let n = 0;
+    todo.forEach(o => { const p = lastYear(o), was = { row: o.row, block: o.block, stand: o.stand, unit: o.unit };
+      Object.assign(o, o.clientType === 'IN' ? { block: p.block, stand: p.stand, unit: p.unit } : { row: p.row, stand: p.stand });
+      if (clashes().has(o.id)) Object.assign(o, was); else { n++; o.history.push({ at: now(), who: 'CRM_ADMIN', what: "Allocated last year's stand" }); } });
+    toast(`${n} stands allocated${todo.length - n ? ` · ${todo.length - n} left because they'd clash` : ''}`); render();
+  });
+};
+A.publishStands = () => {
+  const cl = clashes(), done = D.orders.filter(o => o.submitted && o.stand && !cl.has(o.id));
+  if (cl.size) return toast(`Fix the ${cl.size} clashing stands before publishing`);
+  if (!done.length) return toast('Allocate some stands first');
+  const left = D.orders.filter(o => o.submitted && !o.stand).length;
+  confirmBox('Publish stand numbers', `Email ${done.length} exhibitors their stand number and show it in their portal?${left ? ` ${left} bookings don't have a stand yet and won't be emailed.` : ''}`, 'Publish and email', () => {
+    const at = now();
+    done.forEach(o => { o.showStand = true; D.emailLogs.unshift({ id: D.emailLogs.length + 1, orderId: o.id, kind: 'Broadcast', type: 'Stand allocation', n: null, at, subject: `Your stand at Ploughing 2027: ${loc(o)}`, to: o.account.email, status: 'Sent' }); });
+    D.settings.system.standsPublished = true; toast(`Stand numbers published · ${done.length} emails sent`); render();
+  });
+};
+A.allocCsv = () => csv('stand-allocation.csv', ['Form', 'Company', 'Client type', 'Area', 'Row', 'Block', 'Stand', 'Unit', 'Frontage', 'Last year'],
+  D.orders.filter(o => o.submitted).map(o => [formLabel(o), o.company.name, o.clientType, o.area, o.row, o.block, o.stand, o.unit, o.frontage, lastYear(o) ? pastLoc(o.clientType, lastYear(o)) : '']));
 
 // ---------- woodbark ----------
 const wbUser = w => D.users.find(u => u.id === w.userId) || {};

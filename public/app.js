@@ -16,7 +16,7 @@ const U = o => D.users.find(u => u.id === o.userId) || { username: '?', code: ''
 const orderById = id => D.orders.find(o => o.id === +id);
 const catName = id => (D.CATEGORIES.find(c => c.id === +id) || {}).name || '–';
 const formLabel = o => `${o.clientType || 'OU'} Form # ${o.id}, User: ${U(o).username}`;
-const loc = o => !o.submitted && !o.stand ? '–' : o.clientType === 'IN' ? `${o.venue} · ${o.block}${o.stand}` : `Row ${o.row} · Block ${o.block} · Stand ${o.stand}`;
+const loc = o => !o.stand ? (o.area ? `${o.area} · stand TBC` : '–') : o.clientType === 'IN' ? `${o.venue} · ${o.block}${o.stand}` : `Row ${o.row} · Block ${o.block} · Stand ${o.stand}`;
 const getp = (o, p) => p.split('.').reduce((a, k) => a == null ? a : a[k], o);
 const setp = (o, p, v) => { const ks = p.split('.'); let a = o; ks.slice(0, -1).forEach(k => { a[k] = a[k] ?? {}; a = a[k]; }); a[ks[ks.length - 1]] = v; };
 const daysAgo = s => (Date.now() - new Date(s)) / 864e5;
@@ -123,12 +123,13 @@ A.fakeOpen = name => toast('Would open ' + name);
 
 // ---------- navigation ----------
 const pendingIns = () => D.ins.filter(r => r.status === 'Pending').length;
+const toAllocate = () => D.orders.filter(o => o.submitted && !o.stand).length;
 const pendingPO = () => D.pos.filter(p => p.status === 'Pending').length;
 const NAV = [
   { items: [['Dashboard', '', 'home']] },
   { h: 'Authentication and Authorization', items: [['Groups', 'groups', 'group', 'groups/add'], ['Users', 'users', 'users', 'users/add', true]] },
   { h: 'Docs', items: [['Docs', 'docs', 'doc', 'docs/add']] },
-  { h: 'Order', items: [['Order forms', 'orders', 'form', 'orders/add', true], ['Insurance reviews', 'insurance', 'shield', null, true, pendingIns],
+  { h: 'Order', items: [['Order forms', 'orders', 'form', 'orders/add', true], ['Stand allocation', 'allocation', 'map', null, true, toAllocate], ['Insurance reviews', 'insurance', 'shield', null, true, pendingIns],
     ['Corner allocations', 'corners', 'corner', null, true], ['Exhibition spaces', 'spaces', 'grid'], ['Purchase orders', 'pos', 'po', 'pos/add', false, pendingPO],
     ['Payment processing logs', 'paylogs', 'card']] },
   { h: 'Woodbark', items: [['Woodbark orders', 'woodbark', 'tree', 'woodbark/add', true]] },

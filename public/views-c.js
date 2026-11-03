@@ -355,7 +355,7 @@ function notFound(what) { return shell([[what]], `<div class="card empty" style=
 const ROUTES = [
   [/^$/, vDash], [/^login$/, vLogin], [/^users$/, vUsers], [/^users\/(add|\d+)$/, vUser], [/^groups(?:\/(add|\d+))?$/, vGroups], [/^docs(?:\/(add))?$/, vDocs],
   [/^spaces$/, vSpaces], [/^insurance$/, vInsurance], [/^insurance\/(next|\d+)$/, vInsReview], [/^orders$/, vOrders], [/^orders\/(add|\d+)$/, vOrder],
-  [/^paylogs$/, vPayLogs], [/^pos(?:\/(add))?$/, vPOs], [/^corners$/, vCorners], [/^woodbark$/, vWoodbark], [/^woodbark\/(add|\d+)$/, vWb],
+  [/^paylogs$/, vPayLogs], [/^allocation$/, vAlloc], [/^pos(?:\/(add))?$/, vPOs], [/^corners$/, vCorners], [/^woodbark$/, vWoodbark], [/^woodbark\/(add|\d+)$/, vWb],
   [/^emails\/config\/(add|\d+)$/, vEmailConfig], [/^emails(?:\/(compose|configs|schedules|logs))?$/, vEmails],
   [/^reports$/, vReports], [/^reports\/((?:add|\d+)(?:\?\w+)?)$/, vReport], [/^formats$/, vFormats], [/^settings(?:\/(\w+))?(?:\/(add))?$/, vSettings]];
 function render() {

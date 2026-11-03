@@ -25,7 +25,7 @@ from NPA's brief get working screens.
 ### Exhibitor booking portal (`/portal.html`)
 
 The exhibitor side, redesigned from the current Trade Booking Portal (Outdoor
-Exhibition) with the same wording: login and forgot password, welcome
+Exhibition) with the same wording, moved to the 2027 season the admin data uses: login and forgot password, welcome
 information, pre-booking documents, terms and conditions (must be agreed before
 the booking form opens), and Step 1 – Contact Details (company, address,
 contact person, VAT, trade arena details) with validation and Save. Later

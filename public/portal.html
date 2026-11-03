@@ -238,7 +238,7 @@ const P = {
 };
 const ic = n => `<svg class="i" viewBox="0 0 24 24"><path d="${P[n]}"/></svg>`;
 const SPRIG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V8"/><path d="M12 8c0-3 2-5 4-6-0 3-1.5 5-4 6zM12 8c0-3-2-5-4-6 0 3 1.5 5 4 6zM12 13c1-2.5 3.5-4 6-4-1 2.5-3 4-6 4zM12 13c-1-2.5-3.5-4-6-4 1 2.5 3 4 6 4zM12 18c1-2.5 3.5-4 6-4-1 2.5-3 4-6 4zM12 18c-1-2.5-3.5-4-6-4 1 2.5 3 4 6 4z"/></svg>`;
-const logo = big => `<a class="logo${big ? ' big' : ''}" href="#/welcome" aria-label="National Ploughing Championships (logo placeholder)"><span class="badge">${SPRIG}</span><span class="t"><b>National Ploughing<br>Championships</b><small>15th–17th September 2026 · Screggan, Tullamore</small></span></a>`;
+const logo = big => `<a class="logo${big ? ' big' : ''}" href="#/welcome" aria-label="National Ploughing Championships (logo placeholder)"><span class="badge">${SPRIG}</span><span class="t"><b>National Ploughing<br>Championships</b><small>21st–23rd September 2027 · Venue to be announced</small></span></a>`;
 
 const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2600); };
 const store = {
@@ -270,7 +270,7 @@ function chrome(active, body) {
       <h1><span class="long">Trade Booking Portal – </span><span>Outdoor Exhibition</span></h1>
       <span class="sp"></span>
       <div class="acct" id="acct"><button onclick="A.menu(event)"><span class="av">${esc(u.slice(0, 2).toUpperCase())}</span><span class="nm">${esc(u)}</span>${ic('down')}</button>
-        <div class="menu"><div class="who"><b>${esc(u)}</b><small>Outdoor Exhibition · 2026</small></div>
+        <div class="menu"><div class="who"><b>${esc(u)}</b><small>Outdoor Exhibition · 2027</small></div>
           <a href="#/welcome">${ic('home')}Welcome information</a><a href="#/documents">${ic('dl')}Pre-booking documents</a>
           <a href="javascript:A.toast('Change password (not part of these wireframes)')">${ic('key')}Change password</a><a href="javascript:A.logout()">${ic('out')}Log out</a></div></div>
       <span class="vr"></span>${logo()}
@@ -289,8 +289,8 @@ function maxStep() { return S.agreed ? (S.saved && complete(S.saved) ? 4 : 3) : 
 function vLogin(forgot) {
   return `<div class="login"><div class="card">
     ${logo(true)}
-    <div class="ev"><h2>2026 National Ploughing Championships</h2>
-      <div class="meta"><span>${ic('cal')}15th, 16th &amp; 17th September 2026</span><span>${ic('pin')}Screggan, Tullamore, Co. Offaly</span></div></div>
+    <div class="ev"><h2>2027 National Ploughing Championships</h2>
+      <div class="meta"><span>${ic('cal')}21st, 22nd &amp; 23rd September 2027</span><span>${ic('pin')}Venue to be announced</span></div></div>
     ${forgot ? `<form onsubmit="A.reset(event)">
         <p style="margin:-6px 0 0;color:var(--muted);font-size:14px;text-align:center">Enter the username or email you book with and we'll email you a link to set a new password.</p>
         ${fld('Username or email', 'fu', '', { raw: true, end: ic('mail'), attrs: 'autocomplete="off"' })}
@@ -310,18 +310,18 @@ function vLogin(forgot) {
 function vWelcome() {
   const ticks = ['Strong business opportunities through direct engagement with visitors and businesses', 'A dedicated shopfront for the agricultural industry, featuring Irish agri-business and manufacturers.', 'An ideal environment for generating sales leads and building long-term industry connections', 'A vibrant marketplace where buyers and sellers come together.'];
   return chrome('welcome', `
-    <div class="hero"><h2>Welcome to the National Ploughing Championships 2026 Booking Portal</h2>
-      <div class="facts"><span>${ic('cal')}15th, 16th &amp; 17th September 2026</span><span>${ic('pin')}Screggan, Tullamore, Co. Offaly</span><span>${ic('people')}225,500 visitors in 2025</span></div></div>
+    <div class="hero"><h2>Welcome to the National Ploughing Championships 2027 Booking Portal</h2>
+      <div class="facts"><span>${ic('cal')}21st, 22nd &amp; 23rd September 2027</span><span>${ic('pin')}Venue to be announced</span><span>${ic('people')}225,500 visitors in 2025</span></div></div>
     <div class="card"><div class="hd"><span class="ico">${ic('mail')}</span><div><h3>Welcome Information</h3></div></div><div class="bd"><div class="letter">
-      <p>We are delighted to offer you the opportunity to showcase your business at Ireland’s largest outdoor agricultural event, the 95th National Ploughing Championships will take place in Screggan, Tullamore, Co. Offaly on 15th, 16th and 17th September 2026.</p>
-      <p>With 225,500 visitors attending in 2025 and even greater numbers anticipated for 2026, the Ploughing Championships offer exhibitors exceptional exposure over three days. With a vast and diverse audience, including potential customers, industry professionals and international delegates. The event also serves as a key meeting point for Irish agribusiness and global markets, facilitating valuable networking with fellow exhibitors and international trade delegations.</p>
+      <p>We are delighted to offer you the opportunity to showcase your business at Ireland’s largest outdoor agricultural event, the 96th National Ploughing Championships will take place on 21st, 22nd and 23rd September 2027.</p>
+      <p>With 225,500 visitors attending in 2025 and even greater numbers anticipated for 2027, the Ploughing Championships offer exhibitors exceptional exposure over three days. With a vast and diverse audience, including potential customers, industry professionals and international delegates. The event also serves as a key meeting point for Irish agribusiness and global markets, facilitating valuable networking with fellow exhibitors and international trade delegations.</p>
       <p>The NPA Trade Exhibition is a premier platform for exhibitors, providing:</p>
       <ul>${ticks.map(t => `<li>${ic('check')}<span>${t}</span></li>`).join('')}</ul>
       <p>This booking portal has been designed to make the registration process as simple and efficient as possible.</p>
       <p>Early booking secures the best rates, so we encourage you to reserve your space as soon as possible. Please take the time to review all terms and conditions before completing your booking.</p>
       <p>Should you require any assistance, our team will be happy to help:</p>
       <div class="help-box"><a href="mailto:info@npa.ie">${ic('mail')}info@npa.ie</a><a href="mailto:npaexhibition@npa.ie">${ic('mail')}npaexhibition@npa.ie</a><a href="tel:0598625125">${ic('phone')}059 862 5125</a></div>
-      <p>We look forward to welcoming you to <b>#Ploughing2026</b>.</p>
+      <p>We look forward to welcoming you to <b>#Ploughing2027</b>.</p>
       <div class="sig"><b>Anna May McHugh</b><small>Managing Director</small></div>
     </div></div></div>
     <div class="actbar"><div class="in"><button class="btn pri" onclick="go('documents')">Next ${ic('next')}</button></div></div>`);
@@ -344,16 +344,16 @@ function vTerms() {
   return chrome('terms', `
     <div class="ph"><div class="eyebrow">Before you book</div><h2>Terms and Conditions</h2><p>Please read the exhibition terms and conditions before starting your booking form.</p></div>
     <div class="card"><div class="bd" style="padding:14px">
-      <div class="viewer"><div class="tb">${ic('lock')}<span>Exhibition Terms and Conditions 2026.pdf</span><span class="sp"></span>
-        <button onclick="A.toast('Downloads Exhibition Terms and Conditions 2026.pdf')">${ic('dl')}<span>Download</span></button><button onclick="A.toast('Opens the print dialog')">${ic('print')}</button></div>
+      <div class="viewer"><div class="tb">${ic('lock')}<span>Exhibition Terms and Conditions 2027.pdf</span><span class="sp"></span>
+        <button onclick="A.toast('Downloads Exhibition Terms and Conditions 2027.pdf')">${ic('dl')}<span>Download</span></button><button onclick="A.toast('Opens the print dialog')">${ic('print')}</button></div>
         <div class="pages"><div class="pg"><div class="ttl">
-          <div class="ev">2026 National Ploughing Championships 15<sup>th</sup>–17<sup>th</sup> September 2026 Screggan, Tullamore, Co Offaly.</div>
-          <div class="cl">Official Closing Date 30<sup>th</sup> April 2026 - Bookings received after this date will incur a higher rate</div>
+          <div class="ev">2027 National Ploughing Championships 21<sup>st</sup>–23<sup>rd</sup> September 2027.</div>
+          <div class="cl">Official Closing Date 28<sup>th</sup> February 2027 - Bookings received after this date will incur a higher rate</div>
           <div class="big">EXHIBITION</div><div class="big2">Terms &amp; Conditions</div></div>
           <h4>&nbsp;</h4>${lines([100, 96, 98, 72])}<h4>&nbsp;</h4>${lines([100, 94, 99, 88, 60])}</div>
           <div class="pg"><h4>&nbsp;</h4>${lines([100, 97, 92, 99, 64])}<h4>&nbsp;</h4>${lines([98, 100, 90, 95, 85, 40])}<h4>&nbsp;</h4>${lines([100, 92, 97, 70])}</div></div></div>
     </div>
-    <div class="agree"><label class="chk"><input type="checkbox" id="agree" ${S.agreed ? 'checked' : ''} onchange="A.agree(this.checked)"><span>I have read and I agree with the <a href="javascript:A.toast('Opens Exhibition Terms and Conditions 2026.pdf')">Exhibition Terms and Conditions</a></span></label>
+    <div class="agree"><label class="chk"><input type="checkbox" id="agree" ${S.agreed ? 'checked' : ''} onchange="A.agree(this.checked)"><span>I have read and I agree with the <a href="javascript:A.toast('Opens Exhibition Terms and Conditions 2027.pdf')">Exhibition Terms and Conditions</a></span></label>
       <small>Please download and save for your reference when booking exhibition space</small></div></div>
     <div class="actbar"><div class="in"><button class="btn ghost" onclick="go('documents')">${ic('back')}Back</button><button class="btn pri" id="startbtn" ${S.agreed ? '' : 'disabled'} onclick="go('contact')">Start Booking Form ${ic('next')}</button></div></div>`);
 }

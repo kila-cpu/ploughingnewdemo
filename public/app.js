@@ -29,6 +29,7 @@ const YN = [['yes', 'Yes'], ['no', 'No']];
 const yn = (get) => YN.map(([v, l]) => [v, l, r => !!get(r) === (v === 'yes')]);
 
 const IC = {
+  sprig: '<path d="M12 22V8"/><path d="M12 8c0-3 2-5 4-6 0 3-1.5 5-4 6zM12 8c0-3-2-5-4-6 0 3 1.5 5 4 6zM12 13c1-2.5 3.5-4 6-4-1 2.5-3 4-6 4zM12 13c-1-2.5-3.5-4-6-4 1 2.5 3 4 6 4zM12 18c1-2.5 3.5-4 6-4-1 2.5-3 4-6 4zM12 18c-1-2.5-3.5-4-6-4 1 2.5 3 4 6 4z"/>',
   home: '<path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/>',
   users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
   group: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/>',
@@ -158,7 +159,7 @@ function navHtml() {
 function shell(crumbs, body) {
   return `<header class="top">
     <button class="burger" onclick="document.body.classList.toggle('navopen')">${ic('menu')}</button>
-    <a class="brand" href="#/"><span class="mark">${ic('tractor', '')}</span>NPA Administration <small>Event management</small></a>
+    <a class="brand" href="#/"><span class="mark">${ic('sprig', '')}</span>NPA Administration <small>Event management</small></a>
     <span class="sp"></span>
     <span class="season">${ic('cal')} ${esc(D.settings.system.eventName.replace('National Ploughing Championships', 'Ploughing'))}</span>
     <div class="userlinks"><span class="hide-m">Welcome, <b>CRM_ADMIN</b></span><a class="hide-m" href="portal.html" target="_blank">View exhibitor portal</a><a class="hide-m" href="javascript:A.changePw()">Change password</a><a href="#/login">Log out</a><span class="avatar">CA</span></div>

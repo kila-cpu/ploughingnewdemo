@@ -202,6 +202,38 @@ main{max-width:1120px;margin:0 auto;padding:28px 24px 120px}
 .fld textarea:focus+label,.fld textarea:not(:placeholder-shown)+label{top:6px;font-size:11.5px;font-weight:600;color:var(--green-700)}
 .est{width:100%;border-collapse:collapse;font-size:14.5px} .est td{padding:9px 0;border-bottom:1px solid var(--line-2)} .est td:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .est td span{display:block;font-size:12.5px;color:var(--muted)} .est .tot td{font-weight:700;font-size:16px;border:0}
+.split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+.split>.card,.split>div>.card:last-child{margin-bottom:18px}
+.est tr.sel td{color:var(--orange-600);font-weight:700} .est tr.due td{font-weight:700;color:var(--orange-600);font-size:16px;border:0;padding-top:4px}
+.opts{list-style:none;padding:0;margin:6px 0 12px;display:grid;gap:8px}
+.opts li{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.6);border-radius:8px;padding:8px 12px}
+.opts li svg.i{color:var(--orange-600);margin-top:2px;width:16px;height:16px}
+.layout{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line-2);border-radius:10px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:8px} .legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
+.amt,.methods{display:grid;gap:10px}
+.pay{display:flex;align-items:center;gap:14px;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .15s;background:#fff}
+.pay:hover{border-color:#c9d2cc} .pay.on{border-color:var(--orange);background:var(--orange-50)}
+.pay input{accent-color:var(--orange);width:18px;height:18px;margin:0;flex:none}
+.pay>span:not(.pi){flex:1} .pay b{display:block} .pay small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.pay strong{font-size:17px;font-variant-numeric:tabular-nums}
+.pay .pi{width:36px;height:36px;border-radius:10px;background:var(--green-50);color:var(--green-700);display:grid;place-items:center;flex:none}
+.pay em{font-style:normal;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--green-100);color:var(--green-800);border-radius:999px;padding:3px 9px}
+.cardbox{margin-top:16px;padding:16px;border-radius:12px;background:var(--line-2)}
+.cardel{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;color:#a5aca7}
+.cardel .ph1{flex:1} .cardel svg.i{width:16px;height:16px}
+.mnote{display:flex;gap:10px;align-items:flex-start;margin:16px 0 0;padding:14px 16px;border-radius:12px;background:var(--green-50);color:var(--ink-2);font-size:14px}
+.mnote svg.i{color:var(--green-700);margin-top:2px}
+.sum{position:sticky;top:120px}
+.sum dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0 0 16px;font-size:14px}
+.sum dt{color:var(--muted)} .sum dd{margin:0;text-align:right;font-weight:500}
+.timeline{list-style:none;padding:0;margin:0;display:grid;gap:0}
+.timeline li{display:flex;gap:14px;position:relative;padding-bottom:18px}
+.timeline li:not(:last-child)::before{content:"";position:absolute;left:17px;top:36px;bottom:0;width:2px;background:var(--line)}
+.timeline li>span{width:36px;height:36px;border-radius:50%;background:var(--line-2);color:var(--muted);display:grid;place-items:center;flex:none}
+.timeline li.done>span{background:var(--green-600);color:#fff}
+.timeline b{display:block;margin-top:6px} .timeline small{color:var(--muted);font-size:13.5px}
+.notice ul{margin:4px 0 10px;padding-left:20px} .notice ul li{margin-bottom:3px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;opacity:0;transition:all .25s;z-index:99;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .wf{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--line-2);color:var(--muted);border-radius:999px;padding:3px 10px}
@@ -222,6 +254,8 @@ main{max-width:1120px;margin:0 auto;padding:28px 24px 120px}
   .c3,.c4,.c6,.c8{grid-column:span 12}
   .hero{padding:24px 20px} .hero h2{font-size:23px}
   .letter ul{grid-template-columns:1fr}
+  .actbar .btn{padding:11px 14px} .actbar .btn.pri{flex:1;min-width:0;white-space:nowrap}
+  .split{grid-template-columns:minmax(0,1fr)} .split>*{min-width:0} .sum{position:static}
   .pg{padding:26px 22px;min-height:0} .pg .ttl .big{font-size:32px} .pg .ttl .big2{font-size:27px}
   .viewer .pages{height:360px;padding:14px}
   .actbar .hint{display:none}
@@ -269,12 +303,18 @@ const S = {
   agreed: store.get('agreed', false),
   saved: store.get('form', null),
   space: store.get('space', null),
+  acct: store.get('acct', null),
+  booked: store.get('booked', null),
 };
 // The sample exhibitor's area comes from where they were in previous years (set by NPA in the admin).
 const PROFILE = { area: 'Block 2 – Machinery', past: [[2026, 'Row 12 · Stand 214'], [2025, 'Row 12 · Stand 210'], [2024, 'Row 11 · Stand 206']] };
 const CATS = ['Machinery', 'Machinery - plant', 'Machinery - trailers', 'Machinery - atvs', 'Machinery - transporters', 'Tyres', 'Tools', 'Pumps and Allied Equipment', 'Renewable Energy', 'Buildings Farm', 'Livestock - equipment', 'Forestry and Related Industries'];
-const RATE = { now: 165, later: 185, unit: 'per metre frontage' };
-let space = { frontage: 8, deep: false, category: 'Machinery', particulars: '', sharing: '', ...(S.space || {}) };
+// Outdoor rates per metre of frontage, matching Settings → Outdoor dates in the admin (Standard band).
+const RATE = { r9: 237, r18: 268, late9: 262, late18: 295 };
+let space = { frontage: 5, deep: false, category: '', ...(S.space || {}) };
+let acct = { same: false, aFirst: '', aLast: '', aLandCode: '+353', aLand: '', aEmail: '', ...(S.acct || {}) };
+let pay = { amount: 'full', method: 'stripe', po: '', confirm: false, marketing: false };
+const OBJ = { space: () => space, acct: () => acct, pay: () => pay };
 const BLANK = { company: '', website: '', addr1: '', addr2: '', town: '', postcode: '', country: 'Ireland', first: '', last: '', landCode: '+353', land: '', mobCode: '+353', mob: '', email: '', notVat: false, vatExempt: false, vatCountry: 'Ireland', vatNo: '', signage: '', sameAsCompany: false, siteName: '', siteCode: '+353', siteNo: '' };
 let form = { ...BLANK, ...(S.saved || {}) };
 let tried = false;
@@ -282,11 +322,11 @@ let tried = false;
 const DOCS = ['Outdoor Exhibitors Manual', 'Outdoor Exhibitors - Porch Manual', 'Outdoor Pre-Booking Guidelines', 'Outdoor Site Specifications', 'Outdoor Rate Card', 'Important Dates', 'Outdoor Fire Register', 'Outdoor Regional Broadband', 'Terms and Conditions', 'Outdoor - Fire Safety Checklist'];
 const COUNTRIES = ['Ireland', 'Northern Ireland', 'United Kingdom', 'Austria', 'Belgium', 'Denmark', 'France', 'Germany', 'Italy', 'Netherlands', 'Poland', 'Spain', 'Sweden', 'United States', 'Other'];
 const CODES = ['+353', '+44', '+33', '+49', '+31', '+1'];
-const STEPS = [['welcome', 'Welcome'], ['documents', 'Pre-booking information'], ['terms', 'Terms & conditions'], ['contact', 'Step 1 · Contact details'], ['space', 'Step 2 · Exhibition space'], ['next', 'Step 3 · Structure & payment']];
+const STEPS = [['welcome', 'Welcome'], ['documents', 'Pre-booking information'], ['terms', 'Terms & conditions'], ['contact', 'Step 1 · Contact details'], ['account', 'Step 2 · Account contact'], ['space', 'Step 3 · Exhibition space'], ['payment', 'Step 4 · Payment']];
 
 // ---------- chrome ----------
 function chrome(active, body) {
-  const ai = STEPS.findIndex(s => s[0] === active);
+  const ai = active === 'done' ? STEPS.length : STEPS.findIndex(s => s[0] === active);
   const u = S.user || 'exhibitor';
   return `<header class="top"><div class="in">
       <h1><span class="long">Trade Booking Portal – </span><span>Outdoor Exhibition</span></h1>
@@ -305,7 +345,7 @@ function chrome(active, body) {
     }).join('')}</ol>
   </header><main>${body}</main>`;
 }
-function maxStep() { return !S.agreed ? 2 : !(S.saved && complete(S.saved)) ? 3 : S.space ? 5 : 4; }
+function maxStep() { return S.booked ? -1 : !S.agreed ? 2 : !(S.saved && complete(S.saved)) ? 3 : !(S.acct && !Object.keys(acctErrors(S.acct)).length) ? 4 : !(S.space && S.space.category) ? 5 : 6; }
 
 // ---------- login ----------
 function vLogin(forgot) {
@@ -383,10 +423,10 @@ function vTerms() {
 // ---------- step 1: contact details ----------
 function fld(label, id, val, o = {}) {
   const tip = o.tip ? `<span class="tip" tabindex="0">${ic('info')}<span class="bubble">${o.tip}</span></span>` : '';
-  const pre = o.pre ? `<select class="pre" aria-label="Country code" onchange="A.set('${o.pre[0]}',this.value)">${CODES.map(c => `<option${c === o.pre[1] ? ' selected' : ''}>${c}</option>`).join('')}</select>` : '';
+  const pre = o.pre ? `<select class="pre" aria-label="Country code" onchange="${o.sp ? `A.fv('${o.sp}','${o.pre[0]}',this.value)` : `A.set('${o.pre[0]}',this.value)`}">${CODES.map(c => `<option${c === o.pre[1] ? ' selected' : ''}>${c}</option>`).join('')}</select>` : '';
   let input;
-  const h = o.sp ? `A.sp('${id}',this.value,1)` : `A.set('${id}',this.value)`;
-  if (o.options) input = `<select id="${id}" onchange="${h}">${o.options.map(c => `<option${c === val ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select><label for="${id}">${label}</label><span class="caret">${ic('down')}</span>`;
+  const h = o.sp ? `A.fv('${o.sp}','${id}',this.value)` : `A.set('${id}',this.value)`;
+  if (o.options) input = `<select id="${id}" onchange="${h}">${o.options.map(c => `<option value="${esc(c)}"${c === val ? ' selected' : ''}>${esc(c) || '—'}</option>`).join('')}</select><label for="${id}">${label}</label><span class="caret">${ic('down')}</span>`;
   else input = `<input id="${id}" type="${o.type || 'text'}" value="${esc(val)}" placeholder=" " ${o.attrs || ''} ${o.ro ? 'readonly' : ''} ${o.raw ? '' : `oninput="${h}"`}><label for="${id}">${label}${o.req ? ' <span class="req">*</span>' : ''}</label>`;
   const end = o.end || tip ? `<span class="end">${o.end || ''}${tip}</span>` : '';
   return `<div class="fld${pre ? ' has-pre' : ''}${o.err ? ' err' : ''} ${o.cls || ''}" data-f="${id}"><div class="box">${pre}${input}${end}</div>${o.err ? `<div class="help">${o.err}</div>` : o.help ? `<div class="help">${o.help}</div>` : ''}</div>`;
@@ -458,53 +498,171 @@ function hint() {
 }
 
 // ---------- step 2 placeholder ----------
-// ---------- step 2: exhibition space ----------
+// ---------- step 2: account contact details ----------
+const ACCT_REQ = { aFirst: 'First name', aLast: 'Surname', aEmail: 'Email' };
+function acctErrors(a) {
+  const e = {};
+  for (const k in ACCT_REQ) if (!String(a[k] || '').trim()) e[k] = `Enter ${ACCT_REQ[k].toLowerCase()}`;
+  if (a.aEmail && !/^\S+@\S+\.\S+$/.test(a.aEmail)) e.aEmail = 'Enter a valid email address';
+  return e;
+}
+function vAccount() {
+  const a = acct, e = tried ? acctErrors(a) : {};
+  const F = (label, id, o = {}) => fld(label, id, a[id], { ...o, sp: 'acct', ro: a.same, err: e[id] });
+  return chrome('account', `
+    <div class="ph"><div class="eyebrow">Booking form</div><h2>Step 2 - Account Contact Details</h2><p>Who should receive invoices and payment correspondence.</p></div>
+    <div class="card"><div class="hd"><span class="ico">${ic('user')}</span><div><h3>Account Options</h3></div></div><div class="bd">
+      <label class="chk opt" style="display:inline-flex;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px"><input type="checkbox" ${a.same ? 'checked' : ''} onchange="A.acctSame(this.checked)">Details same as Contact Details</label></div></div>
+    <div class="card"><div class="hd"><span class="ico">${ic('mail')}</span><div><h3>Account Contact Details</h3><small>Please note a copy of your invoice will be emailed to this email address.</small></div></div><div class="bd"><div class="grid">
+      ${F('First name', 'aFirst', { cls: 'c3', req: true, end: ic('user') })}${F('Surname', 'aLast', { cls: 'c3', req: true })}
+      ${F('Landline', 'aLand', { cls: 'c3', type: 'tel', pre: ['aLandCode', a.aLandCode], end: ic('phone') })}
+      ${F('Email', 'aEmail', { cls: 'c3', type: 'email', req: true, end: ic('mail'), help: 'Your invoice is emailed here.' })}</div></div></div>
+    <div class="card"><div class="hd"><span class="ico">${ic('vat')}</span><div><h3>Payment Information</h3></div></div><div class="bd">
+      <div class="notice">${ic('info')}<div>
+        <p>To secure your exhibition space, a full stand rental payment or a non-refundable 50% deposit is required at the time of booking.</p>
+        <p>Payment options available on Exhibitor Dashboard.</p>
+        <p><b>Payment Options 2027</b></p>
+        <ul class="opts">${PAY_OPTS.map(o => `<li>${ic(o.icon)}<span><b>${o.title}</b> ${o.note}</span></li>`).join('')}</ul>
+        <p>Please note that any bank charges incurred will be the responsibility of the exhibitor.</p>
+        <p>The remaining balance must be paid in full by 30th June 2027. After this date, cancellations cannot be accommodated, and all payments are non-refundable.</p></div></div></div></div>
+    <div class="actbar"><div class="in"><button class="btn ghost" onclick="go('contact')">${ic('back')}Back</button>
+      <button class="btn sec" onclick="A.saveAcct()">${ic('save')}Save</button><button class="btn pri" onclick="A.saveAcct(true)">Next ${ic('next')}</button></div></div>`);
+}
+const PAY_OPTS = [
+  { k: 'stripe', icon: 'mail', title: 'EFT via Stripe', note: '– we email you a secure payment link. Preferred method.' },
+  { k: 'bank', icon: 'build', title: 'EFT via NPA bank account', note: '– bank details on your invoice.' },
+  { k: 'card', icon: 'vat', title: 'Credit / Debit Card', note: '– pay now by card.' },
+  { k: 'po', icon: 'save', title: 'PO Number', note: '– please email it to <a href="mailto:accounts@npa.ie">accounts@npa.ie</a>.' }];
+
+// ---------- step 3: exhibition space ----------
 // Exhibitors book space in their assigned area only. They never pick a stand: NPA allocates it after bookings close.
 const money = n => '€' + n.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const rateOf = sp => sp.deep ? RATE.r18 : RATE.r9;
+const quote = sp => { const net = sp.frontage * rateOf(sp), vat = net * .23; return { net, vat, total: net + vat, deposit: (net + vat) / 2 }; };
+function layoutSvg() {
+  // Typical outdoor stand layout: trackways, service areas, 1m side gaps and the service avenue.
+  const stands = (x, y, h) => [0, 1].map(i => { const sx = x + i * 150; return `<rect x="${sx}" y="${y}" width="150" height="${h}" fill="#fff" stroke="#c9d2cc" stroke-dasharray="4 3"/>
+    <rect x="${sx + 2}" y="${y + 2}" width="9" height="${h - 4}" fill="#3ba7e0"/><rect x="${sx + 139}" y="${y + 2}" width="9" height="${h - 4}" fill="#3ba7e0"/>
+    <text x="${sx + 75}" y="${y + h / 2 + 4}" text-anchor="middle" class="sv">Exhibition space</text>`; }).join('');
+  const half = x => `<rect x="${x}" y="58" width="300" height="16" fill="#f5c12e"/>${stands(x, 74, 90)}<rect x="${x}" y="164" width="300" height="34" fill="#e8463b"/>
+    <text x="${x + 150}" y="186" text-anchor="middle" class="sa">Service Avenue · KEEP CLEAR</text>${stands(x, 198, 150)}<rect x="${x}" y="348" width="300" height="16" fill="#f5c12e"/>`;
+  return `<svg viewBox="0 0 790 410" class="layout" role="img" aria-label="Typical outdoor stand layout">
+    <style>.sv{font:500 12px Inter,sans-serif;fill:#6b776f}.sa{font:700 13px Inter,sans-serif;fill:#fff;letter-spacing:.04em}.tw{font:700 12px Inter,sans-serif;fill:#6b776f;letter-spacing:.12em}.dl{font:700 14px Inter,sans-serif;fill:#17221b}.lg{font:500 12px Inter,sans-serif;fill:#3d4a41}</style>
+    <rect x="92" y="30" width="656" height="28" fill="#e3e7e4"/><text x="130" y="49" class="tw">TRAKWAY</text>
+    <rect x="92" y="364" width="656" height="28" fill="#e3e7e4"/><text x="130" y="383" class="tw">TRAKWAY</text>
+    <rect x="410" y="30" width="20" height="362" fill="#e3e7e4"/>
+    <rect x="392" y="74" width="18" height="90" fill="#f5c12e"/><rect x="430" y="74" width="18" height="90" fill="#f5c12e"/>
+    <rect x="392" y="198" width="18" height="150" fill="#f5c12e"/><rect x="430" y="198" width="18" height="150" fill="#f5c12e"/>
+    ${half(92)}${half(448)}
+    <text x="10" y="114" class="dl">9m depth</text><text x="10" y="132" class="dl">stands</text>
+    <text x="10" y="268" class="dl">18m depth</text><text x="10" y="286" class="dl">stands</text>
+  </svg>
+  <div class="legend"><span><i style="background:#3ba7e0"></i>1m must be left both sides if using a marquee / shed</span><span><i style="background:#f5c12e"></i>1.5m and 3m service area must be kept clear</span><span><i style="background:#e8463b"></i>6m service avenue must be KEPT CLEAR</span></div>`;
+}
 function vSpace() {
-  const sp = space, net = sp.frontage * RATE.now, vat = net * .23;
+  const sp = space, q = quote(sp), e = tried && !sp.category ? 'Please select a category' : '';
   return chrome('space', `
-    <div class="ph"><div class="eyebrow">Booking form</div><h2>Step 2 - Exhibition Space</h2><p>Tell us how much space you need in your area. Your stand number is allocated by the NPA.</p></div>
+    <div class="ph"><div class="eyebrow">Booking form</div><h2>Step 3 - Exhibition Space</h2><p>Choose your category, frontage and depth. Your stand number is allocated by the NPA.</p></div>
     <div class="card"><div class="hd"><span class="ico">${ic('pin')}</span><div><h3>Your area</h3><small>Assigned by the NPA based on where you exhibited in previous years</small></div></div><div class="bd">
       <div class="area"><div><div class="lbl" style="margin:0 0 4px">Outdoor exhibition area</div><div class="area-name">${PROFILE.area}</div>
         <div class="past">${PROFILE.past.map(([y, l]) => `<span><b>${y}</b> ${l}</span>`).join('')}</div></div>
         <div class="stand-tbc"><small>Your stand</small><b>To be allocated</b><span>after 28th February 2027</span></div></div>
-      <div class="notice" style="margin-top:18px">${ic('info')}<div><p><b>You don't choose a stand number.</b> Once bookings close on 28th February 2027, the NPA allocates every stand within its area. We'll email you your stand number and it will show here.</p>
+      <div class="notice" style="margin-top:18px">${ic('info')}<div><p><b>You don't choose a stand number.</b> Once bookings close on 28th February 2027, the NPA allocates every stand within its area. We'll email you your stand number.</p>
         <p>Need to move to a different area? Contact <a href="mailto:npaexhibition@npa.ie">npaexhibition@npa.ie</a> before you book.</p></div></div>
     </div></div>
-    <div class="card"><div class="hd"><span class="ico">${ic('build')}</span><div><h3>Space required</h3><small>Outdoor sites are booked by the metre of frontage</small></div></div><div class="bd">
-      <div class="grid">
+    <div class="split">
+      <div class="card"><div class="hd"><span class="ico">${ic('build')}</span><div><h3>Exhibition Space Details</h3></div></div><div class="bd"><div class="grid">
+        ${fld('Select Category', 'category', sp.category, { cls: 'c12', options: ['', ...CATS], sp: 'space', req: true, err: e })}
         <div class="c6"><div class="lbl">Frontage (metres)</div>
           <div class="stepper"><button type="button" onclick="A.front(-1)" aria-label="Less">−</button><input id="frontage" type="number" min="5" max="60" value="${sp.frontage}" onchange="A.front(0,this.value)"><span>m</span><button type="button" onclick="A.front(1)" aria-label="More">+</button></div>
-          <div class="help" style="font-size:12.5px;color:var(--muted);margin-top:6px">Minimum 5 metres.</div></div>
-        <div class="c6"><div class="lbl">Site depth</div><div class="seg">
-          <label class="chk opt"><input type="radio" name="depth" ${sp.deep ? '' : 'checked'} onchange="A.sp('deep',false)">Standard depth</label>
-          <label class="chk opt"><input type="radio" name="depth" ${sp.deep ? 'checked' : ''} onchange="A.sp('deep',true)">18m deep site</label></div></div>
-        ${fld('Category', 'category', sp.category, { cls: 'c6', options: CATS, sp: true, help: 'The categories NPA has opened for your area.' })}
-        ${fld('Sharing your stand with (optional)', 'sharing', sp.sharing, { cls: 'c6', sp: true })}
-        <div class="c12 fld"><div class="box"><textarea id="particulars" rows="3" placeholder=" " oninput="A.sp('particulars',this.value,1)">${esc(sp.particulars)}</textarea><label for="particulars">What will you display?</label></div></div>
-      </div>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:6px">Minimum 5m frontage.</div></div>
+        <div class="c6"><div class="lbl">Depth</div><div class="seg">
+          <label class="chk opt"><input type="radio" name="depth" ${sp.deep ? '' : 'checked'} onchange="A.sp('deep',false)">9m</label>
+          <label class="chk opt"><input type="radio" name="depth" ${sp.deep ? 'checked' : ''} onchange="A.sp('deep',true)">18m</label></div></div>
+      </div></div></div>
+      <div class="card rate"><div class="hd"><span class="ico">${ic('vat')}</span><div><h3>Rate Information</h3><small>Standard rate · per metre frontage</small></div></div><div class="bd">
+        <table class="est"><tr class="${sp.deep ? '' : 'sel'}"><td>9m Stand Rate</td><td>${money(RATE.r9)}</td></tr><tr class="${sp.deep ? 'sel' : ''}"><td>18m Stand Rate</td><td>${money(RATE.r18)}</td></tr>
+          <tr><td>Selected Rate</td><td>${money(rateOf(sp))}</td></tr><tr class="tot"><td>Total Value <span>${sp.frontage}m × ${money(rateOf(sp))}, excl. VAT</span></td><td>${money(q.net)}</td></tr></table>
+        <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted)">After 28th February 2027: ${money(RATE.late9)} (9m) and ${money(RATE.late18)} (18m) per metre.</p></div></div>
+    </div>
+    <div class="card"><div class="hd"><span class="ico">${ic('flag')}</span><div><h3>Space Layout Guide</h3><small>Typical outdoor stand</small></div></div><div class="bd">${layoutSvg()}
+      <div class="notice" style="margin-top:18px">${ic('info')}<div>
+        <p><b>Exhibition Space &amp; Stand Requirements</b></p>
+        <ul><li>The <b>minimum stand size</b> available is <b>5m frontage</b>.</li><li>Two stand depth options are available: <b>9m or 18m</b>.</li><li><b>Ground space only</b> is provided—this is an open green field site.</li></ul>
+        <p><b>Important Setup Requirements:</b></p>
+        <ul><li>All structures must be positioned <b>at least 1 metre in from the perimeter</b> on both the <b>left and right sides</b>. Exhibitors must account for this spacing when selecting their stand size.</li><li>For full details, please refer to the <a href="javascript:A.toast('Opens Outdoor Site Specifications.pdf')"><b>Outdoor Site Specifications</b></a>.</li></ul>
+        <p><b>Booking &amp; Rates:</b></p>
+        <ul><li>Stand rates are based on a tiered pricing structure, determined by the <b>date of booking</b>.</li><li>Rates are subject to availability and may sell out <b>before the listed deadlines</b>.</li></ul>
+        <p>Once exhibition space is fully booked, a <b>waiting list</b> will be created.</p></div></div>
     </div></div>
-    <div class="card"><div class="hd"><span class="ico">${ic('vat')}</span><div><h3>Estimated cost</h3><small>Final price is confirmed on your invoice</small></div></div><div class="bd">
-      <table class="est"><tr><td>Space · ${sp.frontage}m × ${money(RATE.now)} <span>Standard rate, ${RATE.unit}</span></td><td>${money(net)}</td></tr>
-        <tr><td>VAT 23%</td><td>${money(vat)}</td></tr><tr class="tot"><td>Total</td><td>${money(net + vat)}</td></tr></table>
-      <p style="margin:12px 0 0;font-size:13.5px;color:var(--muted)">Bookings received after 28th February 2027 are charged at ${money(RATE.later)} ${RATE.unit}.</p>
-    </div></div>
-    <div class="actbar"><div class="in"><span class="hint">${PROFILE.area} · ${sp.frontage}m frontage</span>
-      <button class="btn ghost" onclick="go('contact')">${ic('back')}Back</button>
+    <div class="actbar"><div class="in"><span class="hint">${sp.frontage}m × ${sp.deep ? 18 : 9}m · <b>${money(q.net)}</b> excl. VAT</span>
+      <button class="btn ghost" onclick="go('account')">${ic('back')}Back</button>
       <button class="btn sec" onclick="A.saveSpace()">${ic('save')}Save</button>
       <button class="btn pri" onclick="A.saveSpace(true)">Next ${ic('next')}</button></div></div>`);
 }
 
-// ---------- step 3 placeholder ----------
-function vNext() {
-  const f = form, sp = space;
-  const rows = [['Company', f.company], ['Contact', `${f.first} ${f.last}`], ['Email', f.email], ['Mobile', `${f.mobCode} ${f.mob}`], ['Area', PROFILE.area], ['Stand', 'To be allocated by the NPA'], ['Space', `${sp.frontage}m frontage${sp.deep ? ', 18m deep' : ''}`], ['Category', sp.category]];
-  return chrome('next', `<div class="card"><div class="empty"><div class="ico">${ic('check')}</div>
-    <h3>Space request saved</h3><p style="margin:0 auto;max-width:540px">The remaining steps of the booking form (structure, utilities and payment) weren't in the screenshots we were sent, so they aren't wireframed yet.</p>
-    <div class="summary">${rows.map(([k, v]) => `<div><small>${k}</small>${esc(v)}</div>`).join('')}</div>
-    <div style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn sec" onclick="go('space')">${ic('back')}Edit exhibition space</button><a class="btn pri" href="index.html#/allocation" style="text-decoration:none">See stand allocation in the admin ${ic('ext')}</a></div>
-  </div></div>`);
+// ---------- step 4: payment ----------
+function vPayment() {
+  const sp = space, q = quote(sp), p = pay, f = form;
+  const due = p.amount === 'deposit' ? q.deposit : q.total;
+  const opt = o => `<label class="pay ${p.method === o.k ? 'on' : ''}"><input type="radio" name="method" ${p.method === o.k ? 'checked' : ''} onchange="A.pay('method','${o.k}')"><span class="pi">${ic(o.icon)}</span><span><b>${o.title}</b><small>${o.note}</small></span>${o.k === 'stripe' ? '<em>Preferred</em>' : ''}</label>`;
+  const btnLabel = p.method === 'card' ? `Pay ${money(due)}` : p.method === 'stripe' ? 'Submit & get payment link' : 'Submit booking';
+  return chrome('payment', `
+    <div class="ph"><div class="eyebrow">Booking form</div><h2>Step 4 - Payment</h2><p>Pay in full or pay a 50% deposit to secure your exhibition space.</p></div>
+    <div class="split">
+      <div>
+        <div class="card"><div class="hd"><span class="ico">${ic('vat')}</span><div><h3>How much would you like to pay now?</h3></div></div><div class="bd"><div class="amt">
+          <label class="pay ${p.amount === 'full' ? 'on' : ''}"><input type="radio" name="amt" ${p.amount === 'full' ? 'checked' : ''} onchange="A.pay('amount','full')"><span><b>Pay in full</b><small>Nothing more to pay</small></span><strong>${money(q.total)}</strong></label>
+          <label class="pay ${p.amount === 'deposit' ? 'on' : ''}"><input type="radio" name="amt" ${p.amount === 'deposit' ? 'checked' : ''} onchange="A.pay('amount','deposit')"><span><b>50% deposit</b><small>Non-refundable. Balance of ${money(q.total - q.deposit)} due by 30th June 2027</small></span><strong>${money(q.deposit)}</strong></label></div></div></div>
+        <div class="card"><div class="hd"><span class="ico">${ic('lock')}</span><div><h3>Payment method</h3><small>Any bank charges incurred are the responsibility of the exhibitor</small></div></div><div class="bd">
+          <div class="methods">${PAY_OPTS.map(opt).join('')}</div>
+          ${p.method === 'card' ? `<div class="cardbox"><div class="lbl">Card details <span class="wf" style="margin-left:6px">Wireframe · Stripe</span></div>
+              <div class="cardel"><span>${ic('lock')}</span><span class="ph1">Card number</span><span class="ph2">MM / YY</span><span class="ph2">CVC</span></div>
+              <p style="margin:8px 0 0;font-size:12.5px;color:var(--muted)">Card details are entered on Stripe's secure form and never stored by the NPA.</p></div>`
+          : p.method === 'stripe' ? `<p class="mnote">${ic('mail')}We'll email a secure Stripe payment link for <b>${money(due)}</b> to <b>${esc(acct.aEmail)}</b>.</p>`
+          : p.method === 'bank' ? `<p class="mnote">${ic('build')}Your invoice for <b>${money(due)}</b> with the NPA bank details is emailed to <b>${esc(acct.aEmail)}</b>. Your space is held once payment is received.</p>`
+          : `<div style="margin-top:14px">${fld('PO Number', 'po', p.po, { sp: 'pay', help: 'Please also email your PO to accounts@npa.ie' })}</div>`}
+        </div></div>
+        <div class="card"><div class="bd" style="display:grid;gap:12px">
+          <label class="chk" style="font-weight:500"><input type="checkbox" ${p.confirm ? 'checked' : ''} onchange="A.pay('confirm',this.checked)"><span>I confirm my booking details are correct and I agree to the <a href="javascript:A.toast('Opens Exhibition Terms and Conditions 2027.pdf')">Exhibition Terms and Conditions</a>.</span></label>
+          <label class="chk" style="font-weight:500"><input type="checkbox" ${p.marketing ? 'checked' : ''} onchange="A.pay('marketing',this.checked)"><span>Keep me updated about future NPA events (optional).</span></label>
+          ${tried && !p.confirm ? '<div style="color:var(--red);font-size:13px">Please confirm your booking details to continue.</div>' : ''}</div></div>
+      </div>
+      <div class="card sum"><div class="hd"><span class="ico">${ic('check')}</span><div><h3>Booking summary</h3></div></div><div class="bd">
+        <dl>
+          <dt>Company</dt><dd>${esc(f.company)}</dd>
+          <dt>Area</dt><dd>${PROFILE.area}</dd>
+          <dt>Stand</dt><dd>To be allocated by the NPA</dd>
+          <dt>Space</dt><dd>${sp.frontage}m frontage × ${sp.deep ? 18 : 9}m depth</dd>
+          <dt>Category</dt><dd>${esc(sp.category)}</dd>
+          <dt>Invoice to</dt><dd>${esc(acct.aFirst)} ${esc(acct.aLast)}<br><span style="color:var(--muted)">${esc(acct.aEmail)}</span></dd>
+        </dl>
+        <table class="est"><tr><td>Space · ${sp.frontage}m × ${money(rateOf(sp))}</td><td>${money(q.net)}</td></tr><tr><td>VAT 23%</td><td>${money(q.vat)}</td></tr>
+          <tr class="tot"><td>Total</td><td>${money(q.total)}</td></tr><tr class="due"><td>${p.amount === 'deposit' ? 'Deposit due now' : 'Due now'}</td><td>${money(due)}</td></tr></table>
+        <button class="btn sec" style="width:100%;margin-top:14px;border-radius:10px" onclick="go('space')">${ic('back')}Change space</button></div></div>
+    </div>
+    <div class="actbar"><div class="in"><span class="hint">${p.amount === 'deposit' ? 'Deposit' : 'Total'} <b>${money(due)}</b></span>
+      <button class="btn ghost" onclick="go('space')">${ic('back')}Back</button>
+      <button class="btn pri" onclick="A.submit()">${p.method === 'card' ? ic('lock') : ''}${btnLabel}</button></div></div>`);
+}
+
+// ---------- confirmation ----------
+function vDone() {
+  const b = S.booked, q = quote(space);
+  const paid = b.method === 'card' ? b.due : 0;
+  const steps = [
+    ['mail', 'Invoice emailed', `A copy of your invoice is on its way to ${esc(acct.aEmail)}.`, true],
+    ...(b.method === 'card' ? [] : [['vat', b.method === 'stripe' ? 'Pay with your Stripe link' : b.method === 'bank' ? 'Pay by bank transfer' : 'Send your PO to accounts@npa.ie', `${money(b.due)} to secure your space.`]]),
+    ['save', 'Upload your insurance', 'Upload your insurance documents from the exhibitor dashboard.'],
+    ['pin', 'Stand allocated by the NPA', `After bookings close on 28th February 2027 we'll email your stand number in ${PROFILE.area}.`],
+    ...(b.amount === 'deposit' ? [['cal', 'Pay the balance', `${money(q.total - q.deposit)} by 30th June 2027.`]] : [])];
+  return chrome('done', `<div class="card"><div class="empty" style="padding-bottom:28px"><div class="ico" style="background:var(--green-600);color:#fff">${ic('check')}</div>
+    <h3 style="font-size:22px">${b.method === 'card' ? 'Payment received, booking confirmed' : 'Booking submitted'}</h3>
+    <p style="margin:0 auto;max-width:520px">Thank you, ${esc(form.first)}. Your booking reference is <b>OU Form # ${b.ref}</b>.${paid ? ` We've taken ${money(paid)}.` : ''}</p></div>
+    <div class="bd" style="max-width:640px;margin:0 auto;padding-top:0"><div class="lbl">What happens next</div>
+      <ol class="timeline">${steps.map(([i, t, d, done]) => `<li class="${done ? 'done' : ''}"><span>${ic(done ? 'check' : i)}</span><div><b>${t}</b><small>${d}</small></div></li>`).join('')}</ol>
+      <div style="margin:22px 0 6px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn sec" onclick="A.restart()">Start a new booking</button><a class="btn pri" href="index.html#/allocation" style="text-decoration:none">See stand allocation in the admin ${ic('ext')}</a></div></div>
+  </div>`);
 }
 
 // ---------- actions ----------
@@ -518,13 +676,33 @@ const A = {
   reset(e) { e.preventDefault(); if (!$('#fu').value.trim()) return toast('Enter your username or email'); toast('If that account exists, a reset link is on its way'); go('login'); },
   logout() { S.user = null; store.set('user', null); go('login'); },
   open(i) { if (!S.seen.includes(i)) { S.seen.push(i); store.set('seen', S.seen); } toast(`Opens ${DOCS[i]}.pdf in a new tab`); render(); },
-  front(d, v) { const n = Math.max(5, Math.min(60, Math.round(v != null ? +v || 5 : space.frontage + d))); space.frontage = n; rerender(); },
-  sp(k, v, soft) { space[k] = v; if (!soft) rerender(); },
-  saveSpace(next) {
-    for (const k of ['category', 'sharing']) { const el = document.getElementById(k); if (el) space[k] = el.value; }
-    S.space = { ...space }; store.set('space', S.space);
-    if (next) go('next'); else toast('Saved. You can come back and finish this later.');
+  fv(o, k, v) { OBJ[o]()[k] = v; if (tried && o !== 'pay') { const el = document.querySelector(`[data-f="${k}"]`); if (el && v) { el.classList.remove('err'); el.querySelector('.help')?.remove(); } } },
+  acctSame(v) { acct.same = v; if (v) Object.assign(acct, { aFirst: form.first, aLast: form.last, aLandCode: form.landCode, aLand: form.land, aEmail: form.email }); rerender(); },
+  saveAcct(next) {
+    S.acct = { ...acct }; store.set('acct', S.acct);
+    if (!next) return toast('Saved. You can come back and finish this later.');
+    tried = true; const e = acctErrors(acct);
+    if (Object.keys(e).length) { rerender(); toast(`Please complete the ${Object.keys(e).length} highlighted field${Object.keys(e).length > 1 ? 's' : ''}`); return; }
+    go('space');
   },
+  front(d, v) { const n = Math.max(5, Math.min(60, Math.round(v != null ? +v || 5 : space.frontage + d))); space.frontage = n; rerender(); },
+  sp(k, v) { space[k] = v; rerender(); },
+  saveSpace(next) {
+    S.space = { ...space }; store.set('space', S.space);
+    if (!next) return toast('Saved. You can come back and finish this later.');
+    if (!space.category) { tried = true; rerender(); document.querySelector('.fld.err')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return toast('Please select a category'); }
+    go('payment');
+  },
+  pay(k, v) { pay[k] = v; rerender(); },
+  submit() {
+    if (!pay.confirm) { tried = true; rerender(); return toast('Please confirm your booking details'); }
+    if (pay.method === 'po' && !pay.po.trim()) return toast('Enter your PO number');
+    const q = quote(space);
+    S.booked = { ref: 12357, method: pay.method, amount: pay.amount, due: pay.amount === 'deposit' ? q.deposit : q.total };
+    store.set('booked', S.booked);
+    if (pay.method === 'card') toast('Wireframe: no card is charged'); go('done');
+  },
+  restart() { for (const k of ['agreed', 'form', 'space', 'acct', 'booked']) store.set(k, null); Object.assign(S, { agreed: false, saved: null, space: null, acct: null, booked: null }); location.hash = '#/welcome'; location.reload(); },
   agree(v) { S.agreed = v; store.set('agreed', v); $('#startbtn').disabled = !v; },
   set(k, v) {
     form[k] = v;
@@ -539,21 +717,23 @@ const A = {
     tried = true;
     const e = errors(form);
     if (Object.keys(e).length) { rerender(); const first = document.querySelector('.fld.err'); first?.scrollIntoView({ behavior: 'smooth', block: 'center' }); first?.querySelector('input,select')?.focus({ preventScroll: true }); toast(`Please complete the ${Object.keys(e).length} highlighted field${Object.keys(e).length > 1 ? 's' : ''}`); return; }
-    S.saved = { ...form }; store.set('form', S.saved); go('space');
+    S.saved = { ...form }; store.set('form', S.saved); go('account');
   },
 };
 document.addEventListener('click', () => $('#acct')?.classList.remove('open'));
 function rerender() { const y = scrollY; render(); scrollTo(0, y); }
 
 // ---------- router ----------
-const ROUTES = { login: () => vLogin(), forgot: () => vLogin(true), welcome: vWelcome, documents: vDocuments, terms: vTerms, contact: vContact, space: vSpace, next: vNext };
+const ROUTES = { login: () => vLogin(), forgot: () => vLogin(true), welcome: vWelcome, documents: vDocuments, terms: vTerms, contact: vContact, account: vAccount, space: vSpace, payment: vPayment, done: vDone };
 function render() {
   let r = location.hash.replace(/^#\/?/, '') || 'login';
   if (!ROUTES[r]) r = 'login';
   if (!S.user && r !== 'login' && r !== 'forgot') r = 'login';
-  if ((r === 'contact' || r === 'space' || r === 'next') && !S.agreed) r = 'terms';
-  if ((r === 'space' || r === 'next') && !(S.saved && complete(S.saved))) r = 'contact';
-  if (r === 'next' && !S.space) r = 'space';
+  // Each step needs the one before it; a submitted booking only shows its confirmation.
+  const order = ['terms', 'contact', 'account', 'space', 'payment', 'done'];
+  const need = { contact: S.agreed, account: S.saved && complete(S.saved), space: S.acct && !Object.keys(acctErrors(S.acct)).length, payment: S.space && S.space.category, done: S.booked };
+  if (S.booked && order.includes(r)) r = 'done';
+  for (let i = 1; i < order.length && order.indexOf(r) >= i; i++) if (!need[order[i]]) { r = order[i - 1]; break; }
   if (location.hash !== '#/' + r) history.replaceState(null, '', '#/' + r);
   document.title = r === 'login' || r === 'forgot' ? 'Login · Trade Booking Portal' : 'Trade Booking Portal';
   $('#root').innerHTML = ROUTES[r]();

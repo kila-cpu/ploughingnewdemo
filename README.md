@@ -26,19 +26,23 @@ from NPA's brief get working screens.
 ### Exhibitor booking portal (`/portal.html`)
 
 The exhibitor side, redesigned from the current Trade Booking Portal (Outdoor
-Exhibition) with the same wording, moved to the 2027 season the admin data uses: login and forgot password, welcome
-information, pre-booking documents, terms and conditions (must be agreed before
-the booking form opens), and Step 1 – Contact Details (company, address,
-contact person, VAT, trade arena details) with validation and Save. Step 2 –
-Exhibition Space shows the exhibitor's assigned area and past stands and asks
-only for frontage, depth and category; the stand is "to be allocated". Later
-steps (structure, utilities, payment) weren't in the screenshots, so Step 3 is
-a placeholder. Any
-username and password logs in. The logo is a placeholder for NPA's artwork.
+Exhibition) with the same wording, moved to the 2027 season the admin data uses:
 
-All exhibitor names, account codes and figures are invented. Nothing from NPA's
-screenshots or live system is in this repository. Data lives in the browser
-tab and reseeds on reload.
+1. Login and forgot password
+2. Welcome information, pre-booking documents, terms and conditions (must be
+   agreed before the booking form opens)
+3. Step 1 – Contact Details (company, address, contact person, VAT, trade arena)
+4. Step 2 – Account Contact Details ("same as contact details", invoice email,
+   payment information)
+5. Step 3 – Exhibition Space: the exhibitor's assigned area and past stands,
+   category, frontage (min 5m), 9m or 18m depth, rate information, and the
+   typical outdoor stand layout guide. The stand number is "to be allocated".
+6. Step 4 – Payment: pay in full or a 50% deposit, by Stripe link, bank
+   transfer, card or PO number, then a confirmation with what happens next
+
+Outdoor rates (per metre, 9m and 18m) match Settings → Outdoor dates in the
+admin. Any username and password logs in, no card is charged, and the logo is a
+placeholder for NPA's artwork.
 
 ## Running it
 
@@ -56,4 +60,4 @@ python3 -m http.server 3000 --directory public
 
 - File uploads record the filename only; "opening" a file shows a toast.
 - Emails are written to the Email logs, not sent.
-- Payments and Stripe are out of scope. The portal covers the screens up to Step 1.
+- Payments are mocked: the card form is a placeholder for Stripe's, and portal bookings don't appear in the admin's order list.

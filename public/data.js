@@ -57,9 +57,10 @@
       { id: 2, label: 'Standard', until: '2027-02-28', price: 1295, unit: 'per 3x3m stand' },
       { id: 3, label: 'Late booking', until: '2027-09-20', price: 1450, unit: 'per 3x3m stand' }],
     outdoorDates: [
-      { id: 1, label: 'Early bird', until: '2026-09-30', price: 145, unit: 'per metre frontage' },
-      { id: 2, label: 'Standard', until: '2027-02-28', price: 165, unit: 'per metre frontage' },
-      { id: 3, label: 'Late booking', until: '2027-09-20', price: 185, unit: 'per metre frontage' }],
+      // Outdoor sites are 9m or 18m deep; price is per metre of frontage for each depth.
+      { id: 1, label: 'Early bird', until: '2026-09-30', price: 215, price18: 245, unit: 'per metre frontage' },
+      { id: 2, label: 'Standard', until: '2027-02-28', price: 237, price18: 268, unit: 'per metre frontage' },
+      { id: 3, label: 'Late booking', until: '2027-09-20', price: 262, price18: 295, unit: 'per metre frontage' }],
     cornerPremium: 150,
     corners: [
       { venue: 'The Hub', total: 24, held: 2 }, { venue: 'The Dome', total: 16, held: 0 },
@@ -153,7 +154,7 @@
       // Bookings are still open, so no stand has been allocated yet.
       row: '', block: indoor ? '' : blockOf(u.perms.area), stand: '', unit: '',
       showStand: submitted && chance(.6), comments: '',
-      categories: [cat.id], category: cat.id, frontage: units, is18m: !indoor && chance(.4), adminDepth: indoor ? 3 : pick([10, 12, 15, 18]),
+      categories: [cat.id], category: cat.id, frontage: units, is18m: !indoor && chance(.4), adminDepth: indoor ? 3 : 9,
       hasCorner, cornerStatus: hasCorner ? pick(['Allocated', 'Allocated', 'Requested']) : 'No Corner',
       structure: { none: false, marquee: !indoor && chance(.3), shed: !indoor && chance(.2), mobile: !indoor && chance(.15), caravan: !indoor && chance(.1), security: chance(.2),
         dims: '', frontage: 0, depth: 0, other: !indoor ? pick(['Trailers', 'Machinery', '', 'Display units']) : '', supplier: '', supplierAddr: '', supplierPhone: '' },
@@ -165,11 +166,12 @@
         vatCountry: 'Ireland', vatNumber: 'IE' + ri(1000000, 9999999) + 'T', noVat: false, vatExempt: false, vatExemptNo: '', vatPct: 23, signFirst: u.first, signLast: u.last, signage: u.name.toUpperCase() },
       history: []
     };
+    if (o.is18m) o.adminDepth = 18;
     // pricing
     const tiers = indoor ? settings.indoorDates : settings.outdoorDates;
     const tier = tierFor(tiers, subDate || '2026-11-02');
     const e = settings.electricity;
-    const space = units * tier.price + (hasCorner ? settings.cornerPremium : 0);
+    const space = units * (o.is18m && tier.price18 ? tier.price18 : tier.price) + (hasCorner ? settings.cornerPremium : 0);
     const utilAmt = elecWt * e.rateWt + elecAmp * e.rateAmp + (water ? e.waterRate : 0);
     const litter = indoor ? 0 : e.litterRate;
     o.util.amount = utilAmt; o.util.vat = +(utilAmt * .23).toFixed(2); o.util.total = +(utilAmt * 1.23).toFixed(2); o.util.litter = litter;

@@ -3,14 +3,15 @@
 function priceOrder(o) {
   const s = D.settings, indoor = o.clientType === 'IN', e = s.electricity;
   const tier = D.tierFor(indoor ? s.indoorDates : s.outdoorDates, o.submittedDate || now());
-  const space = (+o.frontage || 0) * tier.price;
+  const rate = !indoor && o.is18m && tier.price18 ? tier.price18 : tier.price;
+  const space = (+o.frontage || 0) * rate;
   const corner = indoor && o.hasCorner ? s.cornerPremium : 0;
   const elec = o.util.noElec ? 0 : (+o.util.qtyWt || 0) * e.rateWt + (+o.util.qtyAmp || 0) * e.rateAmp;
   const water = o.util.water ? e.waterRate : 0;
   const litter = indoor ? 0 : e.litterRate;
   const net = space + corner + elec + water + litter;
   const vat = net * s.system.vat / 100;
-  return { tier, space, corner, elec, water, litter, net, vat, total: +(net + vat).toFixed(2) };
+  return { tier, rate, space, corner, elec, water, litter, net, vat, total: +(net + vat).toFixed(2) };
 }
 const structureText = o => [o.structure.marquee && 'Marquee', o.structure.shed && 'Shed', o.structure.mobile && 'Mobile unit', o.structure.caravan && 'Caravan', o.structure.none && 'No structure'].filter(Boolean).join(', ') || '–';
 const elecText = o => o.util.noElec ? 'None' : [o.util.qtyWt && `${o.util.qtyWt} × 6kW`, o.util.qtyAmp && `${o.util.qtyAmp} × 3ph`].filter(Boolean).join(', ') || 'None';
@@ -117,14 +118,13 @@ function vOrder(id) {
       F('Trade arena signage', 'company.signage', o.company.signage, 'text', { help: 'Printed on the stand fascia board.' })], 'three'), { note: `Company: ${esc(o.company.name)}` })}
     ${sec('space', 'Exhibition space', fields([
       F('Category', 'category', o.category, 'select', { num: true, opts: D.CATEGORIES.map(c => [c.id, c.name]), help: 'Category this exhibition space belongs to' }),
-      F(indoor ? 'Units (3x3m stands)' : 'Frontage (metres)', 'frontage', o.frontage, 'number', { on: 'A.orderLiveSoft()' }), F('Admin depth', 'adminDepth', o.adminDepth, 'number'),
-      indoor ? '' : F('Is 18m or partitions', 'is18m', o.is18m, 'checkbox'),
+      F(indoor ? 'Units (3x3m stands)' : 'Frontage (metres)', 'frontage', o.frontage, 'number', { on: 'A.orderLiveSoft()' }), indoor ? F('Admin depth', 'adminDepth', o.adminDepth, 'number') : F('Depth', 'is18m', o.is18m ? 'true' : '', 'select', { opts: [['', '9m depth'], ['true', '18m depth']], on: 'A.orderLive()', help: 'The exhibitor picks 9m or 18m. Each has its own rate per metre.' }),
       `<div class="f full"><label class="l">Corner information</label>${indoor ? `<div class="row wrap" style="gap:14px">${F('Has corner', 'hasCorner', o.hasCorner, 'checkbox', { on: 'A.orderLive()' })}
          <div style="min-width:220px">${F('Corner status', 'cornerStatus', o.cornerStatus, 'select', { opts: ['No Corner', 'Requested', 'Allocated'] })}</div>
          <span class="muted small">${cs ? `${esc(o.venue)}: <b>${cs.left}</b> of ${cs.total} corners left · <a href="#/corners">Corner allocations</a>` : ''}</span></div>`
         : `<div class="banner" style="margin:0">${ic('info')} Outdoor stands can't book corners.</div>`}</div>`,
       `<div class="f full"><label class="l">Pricing</label><div class="card" style="box-shadow:none"><table class="t"><tbody>
-        <tr><td>Space — ${o.frontage} × ${money(p.tier.price)} <span class="dim">(${esc(p.tier.label)}, ${esc(p.tier.unit)})</span></td><td class="num">${money(p.space)}</td></tr>
+        <tr><td>Space — ${o.frontage} × ${money(p.rate)} <span class="dim">(${esc(p.tier.label)}${o.clientType === 'OU' ? `, ${o.is18m ? 18 : 9}m deep` : ''}, ${esc(p.tier.unit)})</span></td><td class="num">${money(p.space)}</td></tr>
         ${p.corner ? priceRow('Corner premium', p.corner) : ''}${priceRow('Electricity', p.elec)}${p.water ? priceRow('Water', p.water) : ''}${p.litter ? priceRow('Litter', p.litter) : ''}
         ${priceRow('Net', p.net)}${priceRow(`VAT ${D.settings.system.vat}%`, p.vat)}${priceRow('Grand total', p.total, true)}</tbody></table></div></div>`]), { note: `Exhibition space: ${esc(catName(o.category))}` })}
     ${sec('structure', 'Type of structure', fields([
@@ -155,10 +155,11 @@ function vOrder(id) {
     </form>
     ${savebar('A.saveOrder', o.isNew ? '' : 'A.delOrder()')}`);
 }
-A.orderLive = () => { collect(document.getElementById('form'), draft); if (draft.clientType === 'OU') { draft.venue = ''; draft.hasCorner = false; draft.cornerStatus = 'No Corner'; if (D.VENUES.includes(draft.area)) draft.area = ''; draft.block = D.blockOf(draft.area || ''); } else { if (D.OUT_AREAS.includes(draft.area)) draft.area = ''; draft.venue = draft.area || draft.venue || D.VENUES[0]; } if (!draft.hasCorner) draft.cornerStatus = 'No Corner'; const y = scrollY; render(); scrollTo(0, y); };
+const depthFix = d => { if (typeof d.is18m === 'string') d.is18m = d.is18m === 'true'; if (d.clientType === 'OU') d.adminDepth = d.is18m ? 18 : 9; };
+A.orderLive = () => { collect(document.getElementById('form'), draft); depthFix(draft); if (draft.clientType === 'OU') { draft.venue = ''; draft.hasCorner = false; draft.cornerStatus = 'No Corner'; if (D.VENUES.includes(draft.area)) draft.area = ''; draft.block = D.blockOf(draft.area || ''); } else { if (D.OUT_AREAS.includes(draft.area)) draft.area = ''; draft.venue = draft.area || draft.venue || D.VENUES[0]; } if (!draft.hasCorner) draft.cornerStatus = 'No Corner'; const y = scrollY; render(); scrollTo(0, y); };
 A.orderLiveSoft = () => { clearTimeout(A._t); A._t = setTimeout(() => { const a = document.activeElement?.name; A.orderLive(); if (a) { const el = document.querySelector(`[name="${a}"]`); el?.focus(); } }, 450); };
 A.saveOrder = mode => {
-  collect(document.getElementById('form'), draft);
+  collect(document.getElementById('form'), draft); depthFix(draft);
   const isNew = draft.isNew; delete draft.isNew;
   const u = D.users.find(x => x.id === draft.userId);
   draft.grandTotal = priceOrder(draft).total;

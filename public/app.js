@@ -160,7 +160,7 @@ function shell(crumbs, body) {
     <a class="brand" href="#/"><span class="mark">${ic('tractor', '')}</span>NPA Administration <small>Event management</small></a>
     <span class="sp"></span>
     <span class="season">${ic('cal')} ${esc(D.settings.system.eventName.replace('National Ploughing Championships', 'Ploughing'))}</span>
-    <div class="userlinks"><span class="hide-m">Welcome, <b>CRM_ADMIN</b></span><a class="hide-m" href="javascript:A.toast('Opens the exhibitor portal (not part of these wireframes)')">View site</a><a class="hide-m" href="javascript:A.changePw()">Change password</a><a href="#/login">Log out</a><span class="avatar">CA</span></div>
+    <div class="userlinks"><span class="hide-m">Welcome, <b>CRM_ADMIN</b></span><a class="hide-m" href="portal.html" target="_blank">View exhibitor portal</a><a class="hide-m" href="javascript:A.changePw()">Change password</a><a href="#/login">Log out</a><span class="avatar">CA</span></div>
   </header>
   <nav class="crumbs"><a href="#/">Home</a>${crumbs.map(([l, h]) => `<span class="sep">›</span>${h ? `<a href="${h}">${esc(l)}</a>` : `<span>${esc(l)}</span>`}`).join('')}</nav>
   <div class="shell"><aside class="side">${navHtml()}</aside><main>${body}</main></div>`;

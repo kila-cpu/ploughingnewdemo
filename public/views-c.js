@@ -345,7 +345,7 @@ A.addWbRate = () => { D.settings.woodbarkRates.push({ id: D.settings.woodbarkRat
 // ---------- login / not found ----------
 function vLogin() {
   return `<div class="login"><div class="card"><div class="brand" style="color:var(--brand-900)"><span class="mark">${ic('tractor', '')}</span>NPA Administration</div>
-    <h1>Staff sign in</h1><p class="muted" style="margin:0 0 18px">Exhibitors use the separate exhibitor portal.</p>
+    <h1>Staff sign in</h1><p class="muted" style="margin:0 0 18px">Exhibitors use the separate <a href="portal.html">exhibitor portal</a>.</p>
     <form class="grid" style="gap:14px" onsubmit="location.hash='#/';return false">${F('Username', 'u', 'CRM_ADMIN')}${F('Password', 'p', '', 'password', { ph: 'Any password works in the wireframe' })}
     <button class="btn pri" style="justify-content:center;padding:11px">Log in</button></form></div></div>`;
 }

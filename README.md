@@ -22,6 +22,16 @@ from NPA's brief get working screens.
 
 ★ = flagged as essential in NPA's email.
 
+### Exhibitor booking portal (`/portal.html`)
+
+The exhibitor side, redesigned from the current Trade Booking Portal (Outdoor
+Exhibition) with the same wording: login and forgot password, welcome
+information, pre-booking documents, terms and conditions (must be agreed before
+the booking form opens), and Step 1 – Contact Details (company, address,
+contact person, VAT, trade arena details) with validation and Save. Later
+booking steps weren't in the screenshots, so Step 2 is a placeholder. Any
+username and password logs in. The logo is a placeholder for NPA's artwork.
+
 All exhibitor names, account codes and figures are invented. Nothing from NPA's
 screenshots or live system is in this repository. Data lives in the browser
 tab and reseeds on reload.
@@ -42,4 +52,4 @@ python3 -m http.server 3000 --directory public
 
 - File uploads record the filename only; "opening" a file shows a toast.
 - Emails are written to the Email logs, not sent.
-- Payments, Stripe and the exhibitor portal itself are out of scope.
+- Payments and Stripe are out of scope. The portal covers the screens up to Step 1.

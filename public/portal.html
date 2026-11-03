@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trade Booking Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* NPA green and gold from the championship logo; the portal's orange kept for actions */
+  --green-900:#0f3d24; --green-800:#155232; --green-700:#1c6b40; --green-600:#25854f; --green-100:#e3f2e8; --green-50:#f1f8f3;
+  --gold:#f0b429; --orange:#f28c18; --orange-600:#e07a08; --orange-50:#fff4e6; --orange-100:#ffe7c7;
+  --bg:#f4f6f3; --card:#fff; --line:#e1e6e1; --line-2:#eef1ee;
+  --ink:#17221b; --ink-2:#3d4a41; --muted:#6b776f; --red:#c93a2e; --red-50:#fdecea;
+  --r:14px; --shadow:0 1px 2px rgba(16,40,24,.06),0 4px 16px rgba(16,40,24,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--orange-600);text-decoration:none} a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- logo lockup (placeholder for NPA's artwork) ---------- */
+.logo{display:flex;align-items:center;gap:10px;color:var(--green-800);text-decoration:none}
+.logo .badge{width:42px;height:42px;border-radius:50%;background:var(--green-700);display:grid;place-items:center;color:#fff;box-shadow:inset 0 0 0 3px var(--gold)}
+.logo .badge svg{width:24px;height:24px}
+.logo .t{display:flex;flex-direction:column;line-height:1.05}
+.logo .t b{font-size:12.5px;font-weight:800;letter-spacing:.02em;text-transform:uppercase}
+.logo .t small{font-size:10.5px;color:var(--muted);font-weight:600;margin-top:3px}
+.logo.big{flex-direction:column;text-align:center;gap:14px}
+.logo.big .badge{width:76px;height:76px;box-shadow:inset 0 0 0 5px var(--gold)}
+.logo.big .badge svg{width:42px;height:42px}
+.logo.big .t b{font-size:20px} .logo.big .t small{font-size:12px;margin-top:6px}
+
+/* ---------- header + stepper ---------- */
+.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);}
+.top .in{max-width:1120px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:16px}
+.top h1{margin:0;font-size:16px;font-weight:600;color:var(--ink-2)}
+.top h1 span{color:var(--green-700)}
+.top .sp{flex:1}
+.acct{position:relative}
+.acct>button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px 5px 5px;color:var(--ink-2);font-weight:500}
+.acct>button:hover{background:var(--green-50)}
+.av{width:30px;height:30px;border-radius:50%;background:var(--green-100);color:var(--green-800);display:grid;place-items:center;font-size:12px;font-weight:700}
+.menu{position:absolute;right:0;top:calc(100% + 8px);width:250px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.12);padding:6px;display:none}
+.acct.open .menu{display:block}
+.menu .who{padding:10px 12px;border-bottom:1px solid var(--line-2);margin-bottom:4px}
+.menu .who b{display:block} .menu .who small{color:var(--muted)}
+.menu a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--ink-2)}
+.menu a:hover{background:var(--green-50);text-decoration:none}
+.vr{width:1px;height:36px;background:var(--line)}
+
+.steps{max-width:1120px;margin:0 auto;padding:0 24px 12px;display:flex;gap:6px;list-style:none;counter-reset:s}
+.steps li{flex:1;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--muted);padding-top:10px;border-top:3px solid var(--line-2);min-width:0}
+.steps li .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--line-2);font-size:11px;flex:none}
+.steps li span.l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.steps li.done{border-color:var(--green-600);color:var(--green-700)} .steps li.done .n{background:var(--green-600);color:#fff}
+.steps li.now{border-color:var(--orange);color:var(--ink)} .steps li.now .n{background:var(--orange);color:#fff}
+.steps li a{color:inherit;display:contents}
+
+/* ---------- page ---------- */
+main{max-width:1120px;margin:0 auto;padding:28px 24px 120px}
+.ph{margin-bottom:20px}
+.ph .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-600)}
+.ph h2{margin:4px 0 4px;font-size:26px;letter-spacing:-.02em}
+.ph p{margin:0;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:18px}
+.card>.hd{padding:18px 24px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:12px}
+.card>.hd .ico{width:34px;height:34px;border-radius:10px;background:var(--green-50);color:var(--green-700);display:grid;place-items:center}
+.card>.hd h3{margin:0;font-size:16px}
+.card>.hd small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+.card>.bd{padding:22px 24px}
+
+.notice{display:flex;gap:14px;background:var(--orange-50);border:1px solid var(--orange-100);border-radius:12px;padding:16px 18px;color:#5b3a10;font-size:14px}
+.notice>svg.i{color:var(--orange-600);margin-top:2px}
+.notice p{margin:0 0 6px} .notice p:last-child{margin:0}
+.notice ol{margin:4px 0 8px;padding-left:20px} .notice li{margin-bottom:4px}
+
+/* ---------- actions ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:11px 22px;font-weight:600;border:1px solid transparent;background:#fff;color:var(--ink-2);transition:background .15s,box-shadow .15s}
+.btn.pri{background:var(--orange);color:#fff;box-shadow:0 4px 14px rgba(242,140,24,.32)}
+.btn.pri:hover{background:var(--orange-600)}
+.btn.sec{border-color:var(--line);} .btn.sec:hover{background:var(--green-50)}
+.btn.ghost{background:none} .btn.ghost:hover{background:var(--line-2)}
+.btn:disabled{background:#e7e9e7;color:#a5aca7;box-shadow:none;cursor:not-allowed;border-color:transparent}
+.actbar{position:sticky;bottom:0;z-index:10;background:rgba(244,246,243,.92);backdrop-filter:blur(8px);border-top:1px solid var(--line);margin:24px -24px -120px;padding:14px 24px}
+.actbar .in{display:flex;align-items:center;gap:10px;justify-content:flex-end}
+.actbar .hint{margin-right:auto;font-size:13px;color:var(--muted)}
+.actbar .hint b{color:var(--ink-2)}
+
+/* ---------- fields (outlined, floating label) ---------- */
+.grid{display:grid;gap:18px 20px;grid-template-columns:repeat(12,1fr)}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}.c8{grid-column:span 8}.c12{grid-column:span 12}
+.fld{position:relative}
+.fld .box{position:relative;display:flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.fld .box:focus-within{border-color:var(--green-600);box-shadow:0 0 0 4px rgba(37,133,79,.12)}
+.fld input,.fld select{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;color:var(--ink);padding:22px 14px 8px;appearance:none}
+.fld select{padding-right:36px;cursor:pointer}
+.fld label{position:absolute;left:15px;top:15px;color:var(--muted);pointer-events:none;transition:all .15s;font-size:15px;white-space:nowrap}
+.fld.has-pre label{left:96px}
+.fld input:focus+label,.fld input:not(:placeholder-shown)+label,.fld select+label{top:6px;font-size:11.5px;font-weight:600;color:var(--green-700)}
+.fld .end{display:flex;align-items:center;gap:8px;padding-right:12px;color:var(--muted)}
+.fld .caret{position:absolute;right:12px;pointer-events:none;color:var(--muted)}
+.fld .pre{border:0;border-right:1.5px solid var(--line);background:var(--line-2);border-radius:8px 0 0 8px;align-self:stretch;padding:0 8px 0 12px;width:82px;font:inherit;font-size:14px;font-weight:600;color:var(--ink-2);outline:0;cursor:pointer}
+.fld .help{font-size:12.5px;color:var(--muted);margin:5px 2px 0}
+.fld .count{position:absolute;right:4px;bottom:-19px;font-size:11.5px;color:var(--muted)}
+.fld.err .box{border-color:var(--red);background:var(--red-50)}
+.fld.err .help{color:var(--red)}
+.req{color:var(--red)}
+.tip{position:relative;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;color:var(--muted);cursor:help}
+.tip:hover,.tip:focus{color:var(--green-700);outline:0}
+.tip .bubble{position:absolute;bottom:calc(100% + 8px);right:-10px;width:240px;background:var(--ink);color:#fff;font-size:12.5px;line-height:1.45;padding:9px 11px;border-radius:8px;display:none;z-index:5;font-weight:400}
+.tip:hover .bubble,.tip:focus .bubble{display:block}
+
+.chk{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-weight:600;color:var(--ink-2);user-select:none}
+.chk input{appearance:none;width:20px;height:20px;border:1.5px solid #b9c2bc;border-radius:6px;margin:0;display:grid;place-items:center;cursor:pointer;transition:all .15s;flex:none}
+.chk input:checked{background:var(--orange);border-color:var(--orange)}
+.chk input:checked::after{content:"";width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.seg{display:flex;flex-wrap:wrap;gap:10px}
+.seg .opt{border:1.5px solid var(--line);border-radius:10px;padding:11px 14px}
+.seg .opt:has(input:checked){border-color:var(--orange);background:var(--orange-50)}
+.sub{background:var(--line-2);border-radius:12px;padding:18px;margin:16px 0}
+.lbl{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+
+/* ---------- login ---------- */
+.login{min-height:100vh;display:grid;place-items:center;padding:32px 16px;background:radial-gradient(1200px 500px at 50% -10%,var(--green-100),transparent),linear-gradient(180deg,#f7faf6,var(--bg))}
+.login .card{width:100%;max-width:440px;padding:36px 36px 28px;margin:0}
+.login .ev{text-align:center;margin:22px 0 26px}
+.login .ev h2{margin:0 0 10px;font-size:21px;letter-spacing:-.01em}
+.login .meta{display:flex;flex-direction:column;gap:6px;align-items:center;color:var(--ink-2);font-size:14px}
+.login .meta span{display:inline-flex;align-items:center;gap:8px}
+.login .meta svg.i{color:var(--green-700);width:16px;height:16px}
+.login form{display:grid;gap:22px}
+.login .btn.pri{width:100%;border-radius:10px;padding:13px}
+.login .alt{display:flex;justify-content:space-between;margin-top:16px;font-size:13.5px}
+.login .demo{margin-top:20px;font-size:12.5px;color:var(--muted);text-align:center;border-top:1px solid var(--line-2);padding-top:14px}
+.iconbtn{border:0;background:none;color:var(--muted);padding:4px;border-radius:6px;display:grid;place-items:center}
+.iconbtn:hover{color:var(--ink);background:var(--line-2)}
+
+/* ---------- welcome ---------- */
+.hero{background:linear-gradient(135deg,var(--green-800),var(--green-600));color:#fff;border-radius:var(--r);padding:32px 34px;margin-bottom:18px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;border:34px solid rgba(240,180,41,.22)}
+.hero h2{margin:0 0 16px;font-size:30px;line-height:1.15;letter-spacing:-.02em;max-width:640px}
+.facts{display:flex;flex-wrap:wrap;gap:10px;position:relative;z-index:1}
+.facts span{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 14px;font-size:13.5px;font-weight:500}
+.letter{max-width:760px;font-size:15.5px;color:var(--ink-2)}
+.letter p{margin:0 0 14px}
+.letter ul{list-style:none;padding:0;margin:4px 0 18px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.letter li{display:flex;gap:10px;background:var(--green-50);border-radius:10px;padding:12px 14px;font-size:14.5px}
+.letter li svg.i{color:var(--green-600);margin-top:2px}
+.help-box{display:flex;flex-wrap:wrap;gap:10px 24px;background:var(--line-2);border-radius:12px;padding:14px 18px;margin:6px 0 18px}
+.help-box a,.help-box span{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+.sig b{display:block;color:var(--ink)} .sig small{color:var(--muted)}
+
+/* ---------- documents ---------- */
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.doc{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:12px;padding:14px;background:#fff;color:var(--ink);text-align:left;transition:all .15s}
+.doc:hover{border-color:var(--orange);text-decoration:none;box-shadow:var(--shadow)}
+.doc .fi{width:40px;height:46px;border-radius:6px;background:var(--orange-50);color:var(--orange-600);display:grid;place-items:center;font-size:10px;font-weight:800;flex:none;position:relative}
+.doc .fi::before{content:"";position:absolute;right:0;top:0;border-style:solid;border-width:0 10px 10px 0;border-color:transparent var(--bg) transparent transparent}
+.doc .nm{flex:1;font-weight:600;font-size:14px;line-height:1.3}
+.doc .nm small{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:3px}
+.doc .st{color:var(--muted)}
+.doc.seen .st{color:var(--green-600)}
+.progress{display:flex;align-items:center;gap:12px;margin-bottom:18px;font-size:13.5px;color:var(--muted)}
+.bar{flex:1;max-width:240px;height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green-600);border-radius:9px;transition:width .3s}
+
+/* ---------- terms viewer ---------- */
+.viewer{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#525a55}
+.viewer .tb{display:flex;align-items:center;gap:10px;background:#3c433f;color:#e9ece9;padding:8px 14px;font-size:13px}
+.viewer .tb .sp{flex:1}
+.viewer .tb button{border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:6px;padding:5px 10px;display:inline-flex;gap:6px;align-items:center;font-size:12.5px}
+.viewer .pages{height:440px;overflow:auto;padding:24px}
+.pg{background:#fff;max-width:720px;margin:0 auto 18px;padding:44px 52px;box-shadow:0 2px 10px rgba(0,0,0,.3);min-height:560px}
+.pg .ttl{text-align:center;font-family:Georgia,'Times New Roman',serif}
+.pg .ttl .ev{font-family:Inter,sans-serif;font-size:14px;color:#222;margin:14px 0 4px}
+.pg .ttl .cl{color:#d71920;font-weight:700;font-size:16px}
+.pg .ttl .big{color:#e0151d;font-weight:700;font-size:54px;line-height:1.05;margin:28px 0 6px;letter-spacing:.01em}
+.pg .ttl .big2{color:#e0151d;font-weight:700;font-size:44px;line-height:1.05}
+.pg .ln{height:9px;background:#e9ecea;border-radius:3px;margin:10px 0}
+.pg h4{margin:26px 0 12px;font-size:14px}
+.agree{display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 24px;text-align:center}
+.agree .chk{font-weight:600;font-size:15px}
+.agree small{color:var(--muted);font-style:italic}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;opacity:0;transition:all .25s;z-index:99;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.wf{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--line-2);color:var(--muted);border-radius:999px;padding:3px 10px}
+.empty{text-align:center;padding:46px 24px;color:var(--muted)}
+.empty .ico{width:56px;height:56px;border-radius:16px;margin:0 auto 14px;background:var(--green-50);color:var(--green-700);display:grid;place-items:center}
+.empty h3{color:var(--ink);margin:0 0 6px}
+.summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 24px;text-align:left;max-width:760px;margin:22px auto 0;font-size:14px}
+.summary div{padding:8px 0;border-bottom:1px solid var(--line-2)} .summary small{display:block;color:var(--muted);font-size:12px}
+
+@media (max-width:860px){
+  .top .in{padding:10px 16px;gap:10px} .top h1{font-size:14px} .top h1 .long{display:none}
+  .logo .t,.vr,.acct>button .nm{display:none}
+  .acct>button{padding:4px}
+  .steps{padding:0 16px 10px;gap:4px} .steps li span.l{display:none} .steps li.now{flex:4} .steps li.now span.l{display:inline}
+  main{padding:20px 16px 120px}
+  .actbar{margin:24px -16px -120px;padding:12px 16px}
+  .card>.hd,.card>.bd{padding-left:16px;padding-right:16px}
+  .c3,.c4,.c6,.c8{grid-column:span 12}
+  .hero{padding:24px 20px} .hero h2{font-size:23px}
+  .letter ul{grid-template-columns:1fr}
+  .pg{padding:26px 22px;min-height:0} .pg .ttl .big{font-size:32px} .pg .ttl .big2{font-size:27px}
+  .viewer .pages{height:360px;padding:14px}
+  .actbar .hint{display:none}
+  .login .card{padding:28px 22px 22px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toast" id="toast"></div>
+<script>
+// Exhibitor booking portal wireframe. Everything runs in the browser; nothing is sent anywhere.
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const P = {
+  user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+  down: 'M6 9l6 6 6-6', next: 'M9 18l6-6-6-6', back: 'M15 18l-6-6 6-6',
+  info: 'M12 16v-4M12 8h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z', warn: 'M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
+  mail: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6',
+  phone: 'M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z',
+  mobile: 'M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM12 18h.01',
+  cal: 'M3 5h18v16H3zM16 3v4M8 3v4M3 10h18', pin: 'M12 22s-8-6.5-8-13a8 8 0 0 1 16 0c0 6.5-8 13-8 13zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+  people: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8',
+  eye: 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z', lock: 'M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4',
+  out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9', dl: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',
+  ext: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3', check: 'M20 6 9 17l-5-5', circle: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z',
+  build: 'M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6', home: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10', vat: 'M4 4h16v16H4zM9 15l6-6M9.5 9.5h.01M14.5 14.5h.01',
+  flag: 'M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7', save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8',
+  print: 'M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z', key: 'M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4',
+};
+const ic = n => `<svg class="i" viewBox="0 0 24 24"><path d="${P[n]}"/></svg>`;
+const SPRIG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V8"/><path d="M12 8c0-3 2-5 4-6-0 3-1.5 5-4 6zM12 8c0-3-2-5-4-6 0 3 1.5 5 4 6zM12 13c1-2.5 3.5-4 6-4-1 2.5-3 4-6 4zM12 13c-1-2.5-3.5-4-6-4 1 2.5 3 4 6 4zM12 18c1-2.5 3.5-4 6-4-1 2.5-3 4-6 4zM12 18c-1-2.5-3.5-4-6-4 1 2.5 3 4 6 4z"/></svg>`;
+const logo = big => `<a class="logo${big ? ' big' : ''}" href="#/welcome" aria-label="National Ploughing Championships (logo placeholder)"><span class="badge">${SPRIG}</span><span class="t"><b>National Ploughing<br>Championships</b><small>15th–17th September 2026 · Screggan, Tullamore</small></span></a>`;
+
+const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2600); };
+const store = {
+  get(k, d) { try { return JSON.parse(sessionStorage.getItem('npa-portal-' + k)) ?? d; } catch { return d; } },
+  set(k, v) { try { sessionStorage.setItem('npa-portal-' + k, JSON.stringify(v)); } catch {} },
+};
+
+// ---------- state ----------
+const S = {
+  user: store.get('user', null),
+  seen: store.get('seen', []),
+  agreed: store.get('agreed', false),
+  saved: store.get('form', null),
+};
+const BLANK = { company: '', website: '', addr1: '', addr2: '', town: '', postcode: '', country: 'Ireland', first: '', last: '', landCode: '+353', land: '', mobCode: '+353', mob: '', email: '', notVat: false, vatExempt: false, vatCountry: 'Ireland', vatNo: '', signage: '', sameAsCompany: false, siteName: '', siteCode: '+353', siteNo: '' };
+let form = { ...BLANK, ...(S.saved || {}) };
+let tried = false;
+
+const DOCS = ['Outdoor Exhibitors Manual', 'Outdoor Exhibitors - Porch Manual', 'Outdoor Pre-Booking Guidelines', 'Outdoor Site Specifications', 'Outdoor Rate Card', 'Important Dates', 'Outdoor Fire Register', 'Outdoor Regional Broadband', 'Terms and Conditions', 'Outdoor - Fire Safety Checklist'];
+const COUNTRIES = ['Ireland', 'Northern Ireland', 'United Kingdom', 'Austria', 'Belgium', 'Denmark', 'France', 'Germany', 'Italy', 'Netherlands', 'Poland', 'Spain', 'Sweden', 'United States', 'Other'];
+const CODES = ['+353', '+44', '+33', '+49', '+31', '+1'];
+const STEPS = [['welcome', 'Welcome'], ['documents', 'Pre-booking information'], ['terms', 'Terms & conditions'], ['contact', 'Step 1 · Contact details'], ['next', 'Step 2 · Stand booking']];
+
+// ---------- chrome ----------
+function chrome(active, body) {
+  const ai = STEPS.findIndex(s => s[0] === active);
+  const u = S.user || 'exhibitor';
+  return `<header class="top"><div class="in">
+      <h1><span class="long">Trade Booking Portal – </span><span>Outdoor Exhibition</span></h1>
+      <span class="sp"></span>
+      <div class="acct" id="acct"><button onclick="A.menu(event)"><span class="av">${esc(u.slice(0, 2).toUpperCase())}</span><span class="nm">${esc(u)}</span>${ic('down')}</button>
+        <div class="menu"><div class="who"><b>${esc(u)}</b><small>Outdoor Exhibition · 2026</small></div>
+          <a href="#/welcome">${ic('home')}Welcome information</a><a href="#/documents">${ic('dl')}Pre-booking documents</a>
+          <a href="javascript:A.toast('Change password (not part of these wireframes)')">${ic('key')}Change password</a><a href="javascript:A.logout()">${ic('out')}Log out</a></div></div>
+      <span class="vr"></span>${logo()}
+    </div>
+    <ol class="steps">${STEPS.map(([k, l], i) => {
+      const cls = i < ai ? 'done' : i === ai ? 'now' : '';
+      const reachable = i <= maxStep();
+      const inner = `<span class="n">${i < ai ? '✓' : i + 1}</span><span class="l">${l}</span>`;
+      return `<li class="${cls}">${reachable && i !== ai ? `<a href="#/${k}">${inner}</a>` : inner}</li>`;
+    }).join('')}</ol>
+  </header><main>${body}</main>`;
+}
+function maxStep() { return S.agreed ? (S.saved && complete(S.saved) ? 4 : 3) : 2; }
+
+// ---------- login ----------
+function vLogin(forgot) {
+  return `<div class="login"><div class="card">
+    ${logo(true)}
+    <div class="ev"><h2>2026 National Ploughing Championships</h2>
+      <div class="meta"><span>${ic('cal')}15th, 16th &amp; 17th September 2026</span><span>${ic('pin')}Screggan, Tullamore, Co. Offaly</span></div></div>
+    ${forgot ? `<form onsubmit="A.reset(event)">
+        <p style="margin:-6px 0 0;color:var(--muted);font-size:14px;text-align:center">Enter the username or email you book with and we'll email you a link to set a new password.</p>
+        ${fld('Username or email', 'fu', '', { raw: true, end: ic('mail'), attrs: 'autocomplete="off"' })}
+        <button class="btn pri">Send reset link</button></form>
+        <div class="alt"><a href="#/login">← Back to login</a></div>`
+    : `<form onsubmit="A.login(event)" oninput="A.loginCheck()">
+        ${fld('Username', 'lu', '', { raw: true, end: ic('user'), attrs: 'autocomplete="off"' })}
+        <div class="fld"><div class="box"><input id="lp" type="password" maxlength="25" placeholder=" " autocomplete="off"><label for="lp">Password</label>
+          <span class="end"><button type="button" class="iconbtn" title="Show password" onclick="A.peek()">${ic('eye')}</button></span></div><span class="count" id="lpc">0 / 25</span></div>
+        <button class="btn pri" id="lgo" disabled>Login</button></form>
+      <div class="alt"><a href="#/forgot">Forgot password?</a><a href="index.html#/login">NPA staff sign in</a></div>`}
+    <div class="demo"><span class="wf">Wireframe</span> Any username and password will log you in.</div>
+  </div></div>`;
+}
+
+// ---------- welcome ----------
+function vWelcome() {
+  const ticks = ['Strong business opportunities through direct engagement with visitors and businesses', 'A dedicated shopfront for the agricultural industry, featuring Irish agri-business and manufacturers.', 'An ideal environment for generating sales leads and building long-term industry connections', 'A vibrant marketplace where buyers and sellers come together.'];
+  return chrome('welcome', `
+    <div class="hero"><h2>Welcome to the National Ploughing Championships 2026 Booking Portal</h2>
+      <div class="facts"><span>${ic('cal')}15th, 16th &amp; 17th September 2026</span><span>${ic('pin')}Screggan, Tullamore, Co. Offaly</span><span>${ic('people')}225,500 visitors in 2025</span></div></div>
+    <div class="card"><div class="hd"><span class="ico">${ic('mail')}</span><div><h3>Welcome Information</h3></div></div><div class="bd"><div class="letter">
+      <p>We are delighted to offer you the opportunity to showcase your business at Ireland’s largest outdoor agricultural event, the 95th National Ploughing Championships will take place in Screggan, Tullamore, Co. Offaly on 15th, 16th and 17th September 2026.</p>
+      <p>With 225,500 visitors attending in 2025 and even greater numbers anticipated for 2026, the Ploughing Championships offer exhibitors exceptional exposure over three days. With a vast and diverse audience, including potential customers, industry professionals and international delegates. The event also serves as a key meeting point for Irish agribusiness and global markets, facilitating valuable networking with fellow exhibitors and international trade delegations.</p>
+      <p>The NPA Trade Exhibition is a premier platform for exhibitors, providing:</p>
+      <ul>${ticks.map(t => `<li>${ic('check')}<span>${t}</span></li>`).join('')}</ul>
+      <p>This booking portal has been designed to make the registration process as simple and efficient as possible.</p>
+      <p>Early booking secures the best rates, so we encourage you to reserve your space as soon as possible. Please take the time to review all terms and conditions before completing your booking.</p>
+      <p>Should you require any assistance, our team will be happy to help:</p>
+      <div class="help-box"><a href="mailto:info@npa.ie">${ic('mail')}info@npa.ie</a><a href="mailto:npaexhibition@npa.ie">${ic('mail')}npaexhibition@npa.ie</a><a href="tel:0598625125">${ic('phone')}059 862 5125</a></div>
+      <p>We look forward to welcoming you to <b>#Ploughing2026</b>.</p>
+      <div class="sig"><b>Anna May McHugh</b><small>Managing Director</small></div>
+    </div></div></div>
+    <div class="actbar"><div class="in"><button class="btn pri" onclick="go('documents')">Next ${ic('next')}</button></div></div>`);
+}
+
+// ---------- pre-booking documents ----------
+function vDocuments() {
+  const n = S.seen.length;
+  return chrome('documents', `
+    <div class="ph"><div class="eyebrow">Before you book</div><h2>Pre-Booking Information</h2><p>Please take a moment to review the following documents as it will ensure a seamless booking experience</p></div>
+    <div class="progress"><div class="bar"><i style="width:${n / DOCS.length * 100}%"></i></div>${n} of ${DOCS.length} opened</div>
+    <div class="docs">${DOCS.map((d, i) => { const seen = S.seen.includes(i);
+      return `<button class="doc${seen ? ' seen' : ''}" onclick="A.open(${i})"><span class="fi">PDF</span><span class="nm">${esc(d)}<small>${seen ? 'Opened' : 'Open document'}</small></span><span class="st">${seen ? ic('check') : ic('ext')}</span></button>`; }).join('')}</div>
+    <div class="actbar"><div class="in"><button class="btn ghost" onclick="go('welcome')">${ic('back')}Back</button><button class="btn pri" onclick="go('terms')">Next ${ic('next')}</button></div></div>`);
+}
+
+// ---------- terms ----------
+function vTerms() {
+  const lines = w => w.map(x => `<div class="ln" style="width:${x}%"></div>`).join('');
+  return chrome('terms', `
+    <div class="ph"><div class="eyebrow">Before you book</div><h2>Terms and Conditions</h2><p>Please read the exhibition terms and conditions before starting your booking form.</p></div>
+    <div class="card"><div class="bd" style="padding:14px">
+      <div class="viewer"><div class="tb">${ic('lock')}<span>Exhibition Terms and Conditions 2026.pdf</span><span class="sp"></span>
+        <button onclick="A.toast('Downloads Exhibition Terms and Conditions 2026.pdf')">${ic('dl')}<span>Download</span></button><button onclick="A.toast('Opens the print dialog')">${ic('print')}</button></div>
+        <div class="pages"><div class="pg"><div class="ttl">
+          <div class="ev">2026 National Ploughing Championships 15<sup>th</sup>–17<sup>th</sup> September 2026 Screggan, Tullamore, Co Offaly.</div>
+          <div class="cl">Official Closing Date 30<sup>th</sup> April 2026 - Bookings received after this date will incur a higher rate</div>
+          <div class="big">EXHIBITION</div><div class="big2">Terms &amp; Conditions</div></div>
+          <h4>&nbsp;</h4>${lines([100, 96, 98, 72])}<h4>&nbsp;</h4>${lines([100, 94, 99, 88, 60])}</div>
+          <div class="pg"><h4>&nbsp;</h4>${lines([100, 97, 92, 99, 64])}<h4>&nbsp;</h4>${lines([98, 100, 90, 95, 85, 40])}<h4>&nbsp;</h4>${lines([100, 92, 97, 70])}</div></div></div>
+    </div>
+    <div class="agree"><label class="chk"><input type="checkbox" id="agree" ${S.agreed ? 'checked' : ''} onchange="A.agree(this.checked)"><span>I have read and I agree with the <a href="javascript:A.toast('Opens Exhibition Terms and Conditions 2026.pdf')">Exhibition Terms and Conditions</a></span></label>
+      <small>Please download and save for your reference when booking exhibition space</small></div></div>
+    <div class="actbar"><div class="in"><button class="btn ghost" onclick="go('documents')">${ic('back')}Back</button><button class="btn pri" id="startbtn" ${S.agreed ? '' : 'disabled'} onclick="go('contact')">Start Booking Form ${ic('next')}</button></div></div>`);
+}
+
+// ---------- step 1: contact details ----------
+function fld(label, id, val, o = {}) {
+  const tip = o.tip ? `<span class="tip" tabindex="0">${ic('info')}<span class="bubble">${o.tip}</span></span>` : '';
+  const pre = o.pre ? `<select class="pre" aria-label="Country code" onchange="A.set('${o.pre[0]}',this.value)">${CODES.map(c => `<option${c === o.pre[1] ? ' selected' : ''}>${c}</option>`).join('')}</select>` : '';
+  let input;
+  if (o.options) input = `<select id="${id}" onchange="A.set('${id}',this.value)">${o.options.map(c => `<option${c === val ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select><label for="${id}">${label}</label><span class="caret">${ic('down')}</span>`;
+  else input = `<input id="${id}" type="${o.type || 'text'}" value="${esc(val)}" placeholder=" " ${o.attrs || ''} ${o.ro ? 'readonly' : ''} ${o.raw ? '' : `oninput="A.set('${id}',this.value)"`}><label for="${id}">${label}${o.req ? ' <span class="req">*</span>' : ''}</label>`;
+  const end = o.end || tip ? `<span class="end">${o.end || ''}${tip}</span>` : '';
+  return `<div class="fld${pre ? ' has-pre' : ''}${o.err ? ' err' : ''} ${o.cls || ''}" data-f="${id}"><div class="box">${pre}${input}${end}</div>${o.err ? `<div class="help">${o.err}</div>` : o.help ? `<div class="help">${o.help}</div>` : ''}</div>`;
+}
+const REQ = { company: 'Company name', addr1: 'Address', town: 'Town/City', first: 'First name', last: 'Last name', email: 'Email', mob: 'Mobile', siteName: 'Site Contact Name', siteNo: 'Site Contact Number' };
+function errors(f) {
+  const e = {};
+  for (const k in REQ) if (!String(f[k] || '').trim()) e[k] = `Enter ${REQ[k].toLowerCase()}`;
+  if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) e.email = 'Enter a valid email address, e.g. name@company.ie';
+  if (!f.notVat && !f.vatExempt && !f.vatNo.trim()) e.vatNo = 'Enter your VAT number, or tick Not VAT Registered / VAT Exempt';
+  return e;
+}
+const complete = f => !Object.keys(errors(f)).length;
+function vContact() {
+  const f = form, e = tried ? errors(f) : {};
+  const F = (label, id, o = {}) => fld(label, id, f[id], { ...o, err: e[id] });
+  const vatOff = f.notVat || f.vatExempt;
+  const card = (icn, title, sub, body) => `<div class="card"><div class="hd"><span class="ico">${ic(icn)}</span><div><h3>${title}</h3>${sub ? `<small>${sub}</small>` : ''}</div></div><div class="bd">${body}</div></div>`;
+  return chrome('contact', `
+    <div class="ph"><div class="eyebrow">Booking form</div><h2>Step 1 - Contact Details</h2><p>These will be recorded as your official exhibitor details.</p></div>
+    <div class="notice" style="margin-bottom:18px">${ic('info')}<div>
+      <p>The National Ploughing Association (NPA) processes personal data in accordance with the General Data Protection Regulation (GDPR) and for legitimate business purposes related to the organisation and delivery of NPA events.</p>
+      <p>Your information may be shared <b>only with parties directly involved in the planning, operation, and promotion of NPA events</b>, including event contractors and official partners. It will not be shared with unrelated third parties.</p>
+      <p>We may contact you via email, phone, electronic messaging, or official social media channels in relation to your participation in the event.</p>
+      <p><b>Use of exhibitor information:</b></p>
+      <ol><li><b>Operational use:</b> Company name, address, contact name, phone numbers, and email are used for official NPA correspondence and shared with event contractors where necessary for event planning and delivery.</li>
+        <li><b>Public promotion:</b> Company name, address, trade arena signage, stand number, and location may appear in the official catalogue, on the NPA website, and in approved media publications to indicate your presence at the event.</li>
+        <li><b>Regulatory compliance:</b> Company name, address, contact details, website, and VAT number may be provided to Revenue where required by law.</li></ol>
+      <p>Contact details submitted will be recorded as your official exhibitor details and used for all correspondence before, during, and after the event. <b>Email will be the primary method of communication</b>, so please ensure the correct contact is provided.</p>
+      <p>The NPA Data Protection and Privacy Policy is available at <a href="javascript:A.toast('Opens www.npa.ie')"><b>www.npa.ie</b></a>.</p></div></div>
+
+    ${card('build', 'Company Information', '', `<div class="grid">
+      ${F('Company name', 'company', { cls: 'c6', req: true, tip: 'Your registered business name. This is used on invoices and may appear in the official catalogue.' })}
+      ${F('Website / Facebook field', 'website', { cls: 'c6', help: 'e.g. www.yourcompany.ie or facebook.com/yourcompany' })}</div>`)}
+
+    ${card('home', 'Address Details', '', `<div class="grid">
+      ${F('Address', 'addr1', { cls: 'c12', req: true })}
+      ${F('Address 2 (optional)', 'addr2', { cls: 'c12' })}
+      ${F('Town/City', 'town', { cls: 'c4', req: true })}${F('PostCode', 'postcode', { cls: 'c4' })}${F('Country', 'country', { cls: 'c4', options: COUNTRIES })}</div>`)}
+
+    ${card('user', 'Contact Person', 'Email will be the primary method of communication', `<div class="grid">
+      ${F('First name', 'first', { cls: 'c3', req: true, end: ic('user') })}${F('Last name', 'last', { cls: 'c3', req: true })}
+      ${F('LandLine', 'land', { cls: 'c3', type: 'tel', pre: ['landCode', f.landCode], end: ic('phone') })}${F('Mobile', 'mob', { cls: 'c3', type: 'tel', req: true, pre: ['mobCode', f.mobCode], end: ic('mobile') })}
+      ${F('Email', 'email', { cls: 'c6', type: 'email', req: true, end: ic('mail') })}</div>`)}
+
+    ${card('vat', 'VAT Information', '', `
+      <div class="lbl">VAT Status</div>
+      <div class="seg"><label class="chk opt"><input type="checkbox" ${f.notVat ? 'checked' : ''} onchange="A.vat('notVat',this.checked)">Not VAT Registered</label>
+        <label class="chk opt"><input type="checkbox" ${f.vatExempt ? 'checked' : ''} onchange="A.vat('vatExempt',this.checked)">VAT Exempt</label></div>
+      ${vatOff ? `<div class="sub" style="color:var(--muted);font-size:14px">No VAT registration details needed.</div>` : `<div class="sub"><div class="grid">
+        ${F('VAT Registration Country', 'vatCountry', { cls: 'c6', options: COUNTRIES })}
+        ${F('VAT Registration Number', 'vatNo', { cls: 'c6', req: true, tip: 'Include the country prefix, e.g. IE1234567T. Exhibitors from outside Ireland may be asked for proof of registration.' })}</div></div>`}
+      <div class="notice">${ic('warn')}<div><p>It is entirely the responsibility of each exhibitor to ensure that they fully understand their own obligations regarding VAT and any effect it may have on their participation at the National Ploughing Championships. Please refer to Terms and Conditions Booklet Section 7 for more information.</p></div></div>`)}
+
+    ${card('flag', 'Trade Arena Details', 'Who we contact on site during the event', `<div class="grid">
+      <div class="c6">${F('Trade Arena Signage', 'signage', { ro: f.sameAsCompany, tip: 'The name shown on the signage at your stand in the trade arena.' })}
+        <label class="chk" style="margin-top:12px;font-weight:500"><input type="checkbox" ${f.sameAsCompany ? 'checked' : ''} onchange="A.same(this.checked)">Same as Company Name</label></div>
+      <div class="c6" style="display:grid;gap:18px">${F('Site Contact Name', 'siteName', { req: true, end: ic('user') })}${F('Site Contact Number', 'siteNo', { type: 'tel', req: true, pre: ['siteCode', f.siteCode], end: ic('mobile') })}</div></div>`)}
+
+    <div class="actbar"><div class="in"><span class="hint" id="hint">${hint()}</span>
+      <button class="btn ghost" onclick="go('terms')">${ic('back')}Back</button>
+      <button class="btn sec" id="savebtn" ${dirty() ? '' : 'disabled'} onclick="A.save()">${ic('save')}Save</button>
+      <button class="btn pri" onclick="A.next()">Next ${ic('next')}</button></div></div>`);
+}
+const dirty = () => JSON.stringify(form) !== JSON.stringify({ ...BLANK, ...(S.saved || {}) });
+function hint() {
+  const left = Object.keys(errors(form)).length;
+  return left ? `<b>${left}</b> required field${left > 1 ? 's' : ''} left` : `${ic('check')} All required fields complete`;
+}
+
+// ---------- step 2 placeholder ----------
+function vNext() {
+  const f = form;
+  const rows = [['Company', f.company], ['Contact', `${f.first} ${f.last}`], ['Email', f.email], ['Mobile', `${f.mobCode} ${f.mob}`], ['Address', [f.addr1, f.town, f.country].filter(Boolean).join(', ')], ['VAT', f.notVat ? 'Not VAT registered' : f.vatExempt ? 'VAT exempt' : f.vatNo], ['Trade arena signage', f.signage || '—'], ['Site contact', `${f.siteName} · ${f.siteCode} ${f.siteNo}`]];
+  return chrome('next', `<div class="card"><div class="empty"><div class="ico">${ic('check')}</div>
+    <h3>Contact details saved</h3><p style="margin:0 auto;max-width:520px">The next steps of the booking form (stand location, structure, utilities and payment) weren't in the screenshots we were sent, so they aren't wireframed yet.</p>
+    <div class="summary">${rows.map(([k, v]) => `<div><small>${k}</small>${esc(v)}</div>`).join('')}</div>
+    <div style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn sec" onclick="go('contact')">${ic('back')}Edit contact details</button><a class="btn pri" href="index.html#/orders" style="text-decoration:none">See it in the admin ${ic('ext')}</a></div>
+  </div></div>`);
+}
+
+// ---------- actions ----------
+const go = r => { location.hash = '#/' + r; };
+const A = {
+  toast,
+  menu(e) { e.stopPropagation(); $('#acct').classList.toggle('open'); },
+  loginCheck() { const u = $('#lu').value.trim(), p = $('#lp').value; $('#lpc').textContent = `${p.length} / 25`; $('#lgo').disabled = !(u && p); },
+  peek() { const p = $('#lp'); p.type = p.type === 'password' ? 'text' : 'password'; },
+  login(e) { e.preventDefault(); S.user = $('#lu').value.trim(); store.set('user', S.user); go('welcome'); },
+  reset(e) { e.preventDefault(); if (!$('#fu').value.trim()) return toast('Enter your username or email'); toast('If that account exists, a reset link is on its way'); go('login'); },
+  logout() { S.user = null; store.set('user', null); go('login'); },
+  open(i) { if (!S.seen.includes(i)) { S.seen.push(i); store.set('seen', S.seen); } toast(`Opens ${DOCS[i]}.pdf in a new tab`); render(); },
+  agree(v) { S.agreed = v; store.set('agreed', v); $('#startbtn').disabled = !v; },
+  set(k, v) {
+    form[k] = v;
+    if (k === 'company' && form.sameAsCompany) { form.signage = v; const s = $('#signage'); if (s) s.value = v; }
+    if (tried) { const el = document.querySelector(`[data-f="${k}"]`); if (el && !errors(form)[k]) { el.classList.remove('err'); el.querySelector('.help')?.remove(); } }
+    $('#savebtn').disabled = !dirty(); $('#hint').innerHTML = hint();
+  },
+  vat(k, v) { form[k] = v; if (v) form[k === 'notVat' ? 'vatExempt' : 'notVat'] = false; rerender(); },
+  same(v) { form.sameAsCompany = v; if (v) form.signage = form.company; rerender(); },
+  save() { S.saved = { ...form }; store.set('form', S.saved); $('#savebtn').disabled = true; toast('Saved. You can come back and finish this later.'); },
+  next() {
+    tried = true;
+    const e = errors(form);
+    if (Object.keys(e).length) { rerender(); const first = document.querySelector('.fld.err'); first?.scrollIntoView({ behavior: 'smooth', block: 'center' }); first?.querySelector('input,select')?.focus({ preventScroll: true }); toast(`Please complete the ${Object.keys(e).length} highlighted field${Object.keys(e).length > 1 ? 's' : ''}`); return; }
+    S.saved = { ...form }; store.set('form', S.saved); go('next');
+  },
+};
+document.addEventListener('click', () => $('#acct')?.classList.remove('open'));
+function rerender() { const y = scrollY; render(); scrollTo(0, y); }
+
+// ---------- router ----------
+const ROUTES = { login: () => vLogin(), forgot: () => vLogin(true), welcome: vWelcome, documents: vDocuments, terms: vTerms, contact: vContact, next: vNext };
+function render() {
+  let r = location.hash.replace(/^#\/?/, '') || 'login';
+  if (!ROUTES[r]) r = 'login';
+  if (!S.user && r !== 'login' && r !== 'forgot') r = 'login';
+  if ((r === 'contact' || r === 'next') && !S.agreed) r = 'terms';
+  if (r === 'next' && !(S.saved && complete(S.saved))) r = 'contact';
+  if (location.hash !== '#/' + r) history.replaceState(null, '', '#/' + r);
+  document.title = r === 'login' || r === 'forgot' ? 'Login · Trade Booking Portal' : 'Trade Booking Portal';
+  $('#root').innerHTML = ROUTES[r]();
+}
+addEventListener('hashchange', () => { tried = false; render(); scrollTo(0, 0); });
+render();
+</script>
+</body>
+</html>

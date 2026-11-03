@@ -15,7 +15,7 @@ const AUD = {
   woodbark: ['Exhibitors with a woodbark order', () => D.orders.filter(o => D.woodbark.some(w => w.userId === o.userId))],
   selected: ['Selected order forms', () => D.orders.filter(o => compose.ids.includes(o.id))]
 };
-const REM = { 'Unpaid Deposits': o => o.submitted && !o.pay.confirmed, 'Insurance Documents': o => o.submitted && o.insuranceStatus !== 'Approved', 'Incomplete Bookings': o => !o.submitted, 'Final Payment Deadlines': o => o.submitted && !o.pay.full, 'Pending Documents': o => o.submitted && !o.insuranceFile };
+const REM = { 'Security Details': o => o.submitted && o.security?.status !== 'Confirmed', 'Unpaid Deposits': o => o.submitted && !o.pay.confirmed, 'Insurance Documents': o => o.submitted && o.insuranceStatus !== 'Approved', 'Incomplete Bookings': o => !o.submitted, 'Final Payment Deadlines': o => o.submitted && !o.pay.full, 'Pending Documents': o => o.submitted && !o.insuranceFile };
 const merge = (t, o) => !o ? t : t.replace(/{first_name}/g, o.account.first).replace(/{company}/g, o.company.name).replace(/{order_number}/g, o.id)
   .replace(/{balance_due}/g, money(o.pay.confirmed ? 0 : o.grandTotal)).replace(/{stand}/g, loc(o)).replace(/{username}/g, U(o).username);
 
@@ -264,7 +264,7 @@ function vFormats() {
 // ---------- settings ----------
 const SETTINGS = [['categories', 'Categories', 'tag', 'Exhibitor categories and which area they belong to'], ['corners', 'Corner inventories', 'corner', 'Corner stands per indoor venue'],
   ['counties', 'Counties', 'pin', 'County list for addresses'], ['countries', 'Countries', 'globe', 'Countries and VAT prefixes'], ['electricity', 'Electricity and litter', 'bolt', 'Power, water and litter rates'],
-  ['indoor', 'Indoor dates', 'cal', 'Indoor stand price by booking date'], ['outdoor', 'Outdoor dates', 'cal', 'Outdoor frontage price by booking date'], ['system', 'System settings', 'cog', 'Event, booking toggles, VAT'],
+  ['indoor', 'Indoor dates', 'cal', 'Indoor stand price by booking date'], ['outdoor', 'Outdoor dates', 'cal', 'Outdoor frontage price by booking date'], ['bookings', 'Booking types & prices', 'euro', 'Livestock, porch, bars, shops and wristband prices'], ['insurance', 'Insurance criteria', 'shield', 'What every insurance document is checked against'], ['system', 'System settings', 'cog', 'Event, booking toggles, VAT'],
   ['text', 'Text blocks', 'text', 'Wording shown in the exhibitor portal and emails'], ['woodbark', 'Woodbark rates', 'euro', 'Woodbark products and prices']];
 function vSettings(pg, sub) {
   const s = D.settings;
@@ -355,7 +355,7 @@ function notFound(what) { return shell([[what]], `<div class="card empty" style=
 const ROUTES = [
   [/^$/, vDash], [/^login$/, vLogin], [/^users$/, vUsers], [/^users\/(add|\d+)$/, vUser], [/^groups(?:\/(add|\d+))?$/, vGroups], [/^docs(?:\/(add))?$/, vDocs],
   [/^spaces$/, vSpaces], [/^insurance$/, vInsurance], [/^insurance\/(next|\d+)$/, vInsReview], [/^orders$/, vOrders], [/^orders\/(add|\d+)$/, vOrder],
-  [/^paylogs$/, vPayLogs], [/^allocation$/, vAlloc], [/^pos(?:\/(add))?$/, vPOs], [/^corners$/, vCorners], [/^woodbark$/, vWoodbark], [/^woodbark\/(add|\d+)$/, vWb],
+  [/^paylogs$/, vPayLogs], [/^allocation$/, vAlloc], [/^correspondence(?:\?(.*))?$/, vCorr], [/^history$/, vHistory], [/^duplicates$/, vDups], [/^payments$/, vPayments], [/^settings\/(bookings|insurance)$/, vSettingsX], [/^pos(?:\/(add))?$/, vPOs], [/^corners$/, vCorners], [/^woodbark$/, vWoodbark], [/^woodbark\/(add|\d+)$/, vWb],
   [/^emails\/config\/(add|\d+)$/, vEmailConfig], [/^emails(?:\/(compose|configs|schedules|logs))?$/, vEmails],
   [/^reports$/, vReports], [/^reports\/((?:add|\d+)(?:\?\w+)?)$/, vReport], [/^formats$/, vFormats], [/^settings(?:\/(\w+))?(?:\/(add))?$/, vSettings]];
 function render() {

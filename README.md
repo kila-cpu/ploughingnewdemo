@@ -44,6 +44,30 @@ Outdoor rates (per metre, 9m and 18m) match Settings → Outdoor dates in the
 admin. Any username and password logs in, no card is charged, and the logo is a
 placeholder for NPA's artwork.
 
+### NPA's database wishlist
+
+| Wishlist item | Where it is |
+| --- | --- |
+| Statements and credit notes on the exhibitor dashboard | Portal → My dashboard; admin order form → Invoices & statements (issue credit note, email statement) |
+| Book livestock, porch, bars and shops online | Portal dashboard → Book something else; admin Settings → Booking types & prices; per-user "Other bookings online" |
+| Alternative address for trade packs | Portal Step 1 → Trade Pack Delivery; admin order form → Trade pack address |
+| Order summary more visible on the dashboard | Portal dashboard, top card |
+| Shared correspondence and call log | Admin → Correspondence & calls, plus a Correspondence section on every user and order |
+| Alter prices at any time | Settings → Booking types & prices and price bands; per-order price override |
+| Documents for the specific booking | Docs can target one venue or area (e.g. Agri Pavilion only); portal dashboard shows only matching docs |
+| Insurance review against NPA criteria | Settings → Insurance criteria; checklist on each review picks Approve or the matching reject reason |
+| Duplicate entries ("Shar's") | Admin → Duplicate & shared entries: merge, record as shared stand, or not a duplicate |
+| AutoCAD for numbering the map | Stand allocation → Import from AutoCAD (DXF or Data Extraction CSV) and Export for AutoCAD |
+| Security details with reminders | Portal dashboard → Security details; admin order form → Security; "Security Details" reminder stops once confirmed |
+| Tidy up reports | Reports: one-click quick reports, starred list and builder with live preview |
+| Signature box for terms and conditions | Portal terms page; signature shown on the admin order form |
+| History of changes | Admin → Change history (old and new values), plus History on each record |
+| Payments from Big Red Cloud | Admin → Payments (Big Red Cloud): sync, auto-match, match by hand; shown on each order |
+| Future Ticketing wristbands | Portal dashboard → Wristbands; admin order form → Wristbands |
+
+The AutoCAD, Big Red Cloud and Future Ticketing links are mocked; each would need
+those services' APIs or file exports confirmed.
+
 ## Running it
 
 ```bash

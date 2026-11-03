@@ -234,6 +234,32 @@ main{max-width:1120px;margin:0 auto;padding:28px 24px 120px}
 .timeline li.done>span{background:var(--green-600);color:#fff}
 .timeline b{display:block;margin-top:6px} .timeline small{color:var(--muted);font-size:13.5px}
 .notice ul{margin:4px 0 10px;padding-left:20px} .notice ul li{margin-bottom:3px}
+.sigbox{width:100%;max-width:600px;margin-top:14px;text-align:left;display:grid;gap:10px}
+#sig{width:100%;height:140px;border:1.5px dashed #b9c2bc;border-radius:12px;background:#fff;touch-action:none;cursor:crosshair}
+.sigline{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted)}
+.sigbox small.ok{display:inline-flex;gap:6px;align-items:center;color:var(--green-700);font-style:normal;font-weight:600}
+.summary-card .bd{padding:24px}
+.sc-top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.sc-ref{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:2px 0 10px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tg{font-size:12px;font-weight:700;border-radius:999px;padding:4px 11px;background:var(--line-2);color:var(--ink-2)} .tg.ok{background:var(--green-100);color:var(--green-800)} .tg.warn{background:var(--orange-100);color:#8a4b05}
+.sc-bal{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px} .sc-bal small{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.sc-bal b{font-size:30px;letter-spacing:-.02em;color:var(--orange-600)} .sc-bal span{font-size:13px;color:var(--muted);margin-bottom:8px}
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line-2)}
+.sc-grid small{display:block;font-size:12px;color:var(--muted)} .sc-grid b{display:block;font-size:15px} .sc-grid span{font-size:12.5px;color:var(--muted)}
+.row-btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.drow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line-2)} .drow:last-child{border:0}
+.drow b{display:block;font-size:14px} .drow small{color:var(--muted);font-size:12.5px} .drow .amt2{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.drow .fi{width:34px;height:40px;border-radius:6px;background:var(--orange-50);color:var(--orange-600);display:grid;place-items:center;font-size:9px;font-weight:800;flex:none}
+.st{margin:0 0 12px}
+.wb{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px} .wb div{background:var(--line-2);border-radius:10px;padding:10px 12px} .wb small{display:block;font-size:12px;color:var(--muted)} .wb b{font-size:22px}
+.buy{display:flex;align-items:center;gap:12px;flex-wrap:wrap} .buy>span{flex:1 1 100%;font-size:13.5px;font-weight:600}
+.stepper.sm button{height:40px;width:38px} .stepper.sm input{width:48px;font-size:16px}
+.extras{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.extra{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;border:1.5px solid var(--line);border-radius:12px;padding:16px;background:#fff;transition:all .15s}
+.extra:hover{border-color:var(--orange);box-shadow:var(--shadow)} .extra small{color:var(--muted)} .extra.off{opacity:.65}
+.extra .pi{width:38px;height:38px;border-radius:10px;background:var(--green-50);color:var(--green-700);display:grid;place-items:center}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;opacity:0;transition:all .25s;z-index:99;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .wf{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--line-2);color:var(--muted);border-radius:999px;padding:3px 10px}
@@ -255,6 +281,7 @@ main{max-width:1120px;margin:0 auto;padding:28px 24px 120px}
   .hero{padding:24px 20px} .hero h2{font-size:23px}
   .letter ul{grid-template-columns:1fr}
   .actbar .btn{padding:11px 14px} .actbar .btn.pri{flex:1;min-width:0;white-space:nowrap}
+  .dgrid{grid-template-columns:minmax(0,1fr)} .extras{grid-template-columns:1fr 1fr} .sc-bal{align-items:flex-start;text-align:left}
   .split{grid-template-columns:minmax(0,1fr)} .split>*{min-width:0} .sum{position:static}
   .pg{padding:26px 22px;min-height:0} .pg .ttl .big{font-size:32px} .pg .ttl .big2{font-size:27px}
   .viewer .pages{height:360px;padding:14px}
@@ -305,6 +332,10 @@ const S = {
   space: store.get('space', null),
   acct: store.get('acct', null),
   booked: store.get('booked', null),
+  sig: store.get('sig', null),
+  dash: store.get('dash', null) || { ins: 'none', insAt: '', sec: { status: 'none', secCo: '', secName: '', secPhone: '', secStaff: '' }, wb: 0, wbq: 2 },
+  extras: store.get('extras', []),
+  extraDraft: { qty: 1, exNote: '' },
 };
 // The sample exhibitor's area comes from where they were in previous years (set by NPA in the admin).
 const PROFILE = { area: 'Block 2 – Machinery', past: [[2026, 'Row 12 · Stand 214'], [2025, 'Row 12 · Stand 210'], [2024, 'Row 11 · Stand 206']] };
@@ -314,8 +345,8 @@ const RATE = { r9: 237, r18: 268, late9: 262, late18: 295 };
 let space = { frontage: 5, deep: false, category: '', ...(S.space || {}) };
 let acct = { same: false, aFirst: '', aLast: '', aLandCode: '+353', aLand: '', aEmail: '', ...(S.acct || {}) };
 let pay = { amount: 'full', method: 'stripe', po: '', confirm: false, marketing: false };
-const OBJ = { space: () => space, acct: () => acct, pay: () => pay };
-const BLANK = { company: '', website: '', addr1: '', addr2: '', town: '', postcode: '', country: 'Ireland', first: '', last: '', landCode: '+353', land: '', mobCode: '+353', mob: '', email: '', notVat: false, vatExempt: false, vatCountry: 'Ireland', vatNo: '', signage: '', sameAsCompany: false, siteName: '', siteCode: '+353', siteNo: '' };
+const OBJ = { space: () => space, acct: () => acct, pay: () => pay, sec: () => S.dash.sec, extra: () => S.extraDraft };
+const BLANK = { tpAlt: false, tpAttn: '', tpAddr: '', tpTown: '', tpPostcode: '', tpCountry: 'Ireland', company: '', website: '', addr1: '', addr2: '', town: '', postcode: '', country: 'Ireland', first: '', last: '', landCode: '+353', land: '', mobCode: '+353', mob: '', email: '', notVat: false, vatExempt: false, vatCountry: 'Ireland', vatNo: '', signage: '', sameAsCompany: false, siteName: '', siteCode: '+353', siteNo: '' };
 let form = { ...BLANK, ...(S.saved || {}) };
 let tried = false;
 
@@ -333,16 +364,16 @@ function chrome(active, body) {
       <span class="sp"></span>
       <div class="acct" id="acct"><button onclick="A.menu(event)"><span class="av">${esc(u.slice(0, 2).toUpperCase())}</span><span class="nm">${esc(u)}</span>${ic('down')}</button>
         <div class="menu"><div class="who"><b>${esc(u)}</b><small>Outdoor Exhibition · 2027</small></div>
-          <a href="#/welcome">${ic('home')}Welcome information</a><a href="#/documents">${ic('dl')}Pre-booking documents</a>
+          ${S.booked ? `<a href="#/dashboard">${ic('home')}My dashboard</a>` : ''}<a href="#/welcome">${ic('home')}Welcome information</a><a href="#/documents">${ic('dl')}Pre-booking documents</a>
           <a href="javascript:A.toast('Change password (not part of these wireframes)')">${ic('key')}Change password</a><a href="javascript:A.logout()">${ic('out')}Log out</a></div></div>
       <span class="vr"></span>${logo()}
     </div>
-    <ol class="steps">${STEPS.map(([k, l], i) => {
+    ${active === 'dash' ? '' : `<ol class="steps">${STEPS.map(([k, l], i) => {
       const cls = i < ai ? 'done' : i === ai ? 'now' : '';
       const reachable = i <= maxStep();
       const inner = `<span class="n">${i < ai ? '✓' : i + 1}</span><span class="l">${l}</span>`;
       return `<li class="${cls}">${reachable && i !== ai ? `<a href="#/${k}">${inner}</a>` : inner}</li>`;
-    }).join('')}</ol>
+    }).join('')}</ol>`}
   </header><main>${body}</main>`;
 }
 function maxStep() { return S.booked ? -1 : !S.agreed ? 2 : !(S.saved && complete(S.saved)) ? 3 : !(S.acct && !Object.keys(acctErrors(S.acct)).length) ? 4 : !(S.space && S.space.category) ? 5 : 6; }
@@ -416,8 +447,13 @@ function vTerms() {
           <div class="pg"><h4>&nbsp;</h4>${lines([100, 97, 92, 99, 64])}<h4>&nbsp;</h4>${lines([98, 100, 90, 95, 85, 40])}<h4>&nbsp;</h4>${lines([100, 92, 97, 70])}</div></div></div>
     </div>
     <div class="agree"><label class="chk"><input type="checkbox" id="agree" ${S.agreed ? 'checked' : ''} onchange="A.agree(this.checked)"><span>I have read and I agree with the <a href="javascript:A.toast('Opens Exhibition Terms and Conditions 2027.pdf')">Exhibition Terms and Conditions</a></span></label>
-      <small>Please download and save for your reference when booking exhibition space</small></div></div>
-    <div class="actbar"><div class="in"><button class="btn ghost" onclick="go('documents')">${ic('back')}Back</button><button class="btn pri" id="startbtn" ${S.agreed ? '' : 'disabled'} onclick="go('contact')">Start Booking Form ${ic('next')}</button></div></div>`);
+      <small>Please download and save for your reference when booking exhibition space</small>
+      <div class="sigbox"><div class="lbl" style="margin:0 0 8px">Sign to accept the terms and conditions</div>
+        <canvas id="sig" width="560" height="140" aria-label="Signature box"></canvas>
+        <div class="sigline"><span>Sign above with your mouse or finger</span><button type="button" class="btn ghost" style="padding:4px 10px;font-size:13px" onclick="A.sigClear()">Clear</button></div>
+        ${fld('Full name', 'sigName', (S.sig && S.sig.name) || '', { raw: true, attrs: 'oninput="A.sigCheck()"' })}
+        ${S.sig ? `<small class="ok">${ic('check')} Signed by ${esc(S.sig.name)} on ${esc(S.sig.at)}</small>` : ''}</div></div></div>
+    <div class="actbar"><div class="in"><button class="btn ghost" onclick="go('documents')">${ic('back')}Back</button><button class="btn pri" id="startbtn" ${S.agreed && S.sig ? '' : 'disabled'} onclick="A.sigSave()">Start Booking Form ${ic('next')}</button></div></div>`);
 }
 
 // ---------- step 1: contact details ----------
@@ -485,6 +521,11 @@ function vContact() {
       <div class="c6">${F('Trade Arena Signage', 'signage', { ro: f.sameAsCompany, tip: 'The name shown on the signage at your stand in the trade arena.' })}
         <label class="chk" style="margin-top:12px;font-weight:500"><input type="checkbox" ${f.sameAsCompany ? 'checked' : ''} onchange="A.same(this.checked)">Same as Company Name</label></div>
       <div class="c6" style="display:grid;gap:18px">${F('Site Contact Name', 'siteName', { req: true, end: ic('user') })}${F('Site Contact Number', 'siteNo', { type: 'tel', req: true, pre: ['siteCode', f.siteCode], end: ic('mobile') })}</div></div>`)}
+
+    <div id="tradepack">${card('mail', 'Trade Pack Delivery', 'Your trade pack is posted out before the event', `
+      <label class="chk opt" style="display:inline-flex;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px"><input type="checkbox" ${f.tpAlt ? 'checked' : ''} onchange="A.tpAlt(this.checked)">Send my trade pack to a different address</label>
+      ${f.tpAlt ? `<div class="grid" style="margin-top:18px">${F('For the attention of', 'tpAttn', { cls: 'c6' })}${F('Address', 'tpAddr', { cls: 'c6' })}${F('Town/City', 'tpTown', { cls: 'c4' })}${F('PostCode', 'tpPostcode', { cls: 'c4' })}${F('Country', 'tpCountry', { cls: 'c4', options: COUNTRIES })}</div>`
+        : `<p style="margin:12px 0 0;color:var(--muted);font-size:14px">It will go to the company address above.</p>`}`)}</div>
 
     <div class="actbar"><div class="in"><span class="hint" id="hint">${hint()}</span>
       <button class="btn ghost" onclick="go('terms')">${ic('back')}Back</button>
@@ -654,6 +695,7 @@ function vDone() {
     ['mail', 'Invoice emailed', `A copy of your invoice is on its way to ${esc(acct.aEmail)}.`, true],
     ...(b.method === 'card' ? [] : [['vat', b.method === 'stripe' ? 'Pay with your Stripe link' : b.method === 'bank' ? 'Pay by bank transfer' : 'Send your PO to accounts@npa.ie', `${money(b.due)} to secure your space.`]]),
     ['save', 'Upload your insurance', 'Upload your insurance documents from the exhibitor dashboard.'],
+    ['people', 'Send your security details', "Add them on your dashboard when you have them. We'll remind you until they're in."],
     ['pin', 'Stand allocated by the NPA', `After bookings close on 28th February 2027 we'll email your stand number in ${PROFILE.area}.`],
     ...(b.amount === 'deposit' ? [['cal', 'Pay the balance', `${money(q.total - q.deposit)} by 30th June 2027.`]] : [])];
   return chrome('done', `<div class="card"><div class="empty" style="padding-bottom:28px"><div class="ico" style="background:var(--green-600);color:#fff">${ic('check')}</div>
@@ -661,8 +703,78 @@ function vDone() {
     <p style="margin:0 auto;max-width:520px">Thank you, ${esc(form.first)}. Your booking reference is <b>OU Form # ${b.ref}</b>.${paid ? ` We've taken ${money(paid)}.` : ''}</p></div>
     <div class="bd" style="max-width:640px;margin:0 auto;padding-top:0"><div class="lbl">What happens next</div>
       <ol class="timeline">${steps.map(([i, t, d, done]) => `<li class="${done ? 'done' : ''}"><span>${ic(done ? 'check' : i)}</span><div><b>${t}</b><small>${d}</small></div></li>`).join('')}</ol>
-      <div style="margin:22px 0 6px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn sec" onclick="A.restart()">Start a new booking</button><a class="btn pri" href="index.html#/allocation" style="text-decoration:none">See stand allocation in the admin ${ic('ext')}</a></div></div>
+      <div style="margin:22px 0 6px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn sec" onclick="A.restart()">Start a new booking</button><button class="btn pri" onclick="go('dashboard')">Go to my dashboard ${ic('next')}</button></div></div>
   </div>`);
+}
+
+// ---------- exhibitor dashboard ----------
+// Order summary up top, then statements, documents for this booking, insurance, security
+// details, wristbands (Future Ticketing), trade pack address and other bookings.
+const EXTRAS = { livestock: { name: 'Livestock pens', price: 85, unit: 'pen', icon: 'people', note: 'Pens in the livestock section, bedded and watered.', online: true },
+  porch: { name: 'Porch units', price: 650, unit: 'porch', icon: 'home', note: 'A covered porch unit at the front of your stand. See the Porch Manual.', online: true },
+  bars: { name: 'Bars', price: 2400, unit: 'bar licence', icon: 'flag', note: 'Bars are arranged directly with the NPA.', online: false },
+  shops: { name: 'Shops', price: 900, unit: 'shop unit', icon: 'build', note: 'Retail units in the shopping village.', online: true } };
+const MY_DOCS = [['Outdoor Exhibitors Manual', 'All outdoor'], ['Outdoor Site Specifications', 'All outdoor'], ['Block 2 – Machinery Layout', 'Block 2 – Machinery only'], ['Block 2 – Machinery Electrical Points', 'Block 2 – Machinery only'], ['Exhibition Map', 'All exhibitors'], ['Exhibitor FAQ', 'All exhibitors']];
+function dashState() {
+  const b = S.booked, q = quote(space);
+  const paid = b.method === 'card' ? b.due : 0, credit = 50;
+  const extras = S.extras.reduce((t, x) => t + x.qty * EXTRAS[x.k].price * 1.23, 0);
+  return { b, q, paid, credit, extras, balance: Math.max(0, q.total + extras - paid - credit) };
+}
+function vDash() {
+  const { b, q, paid, credit, extras, balance } = dashState();
+  const D2 = S.dash, wbIncluded = Math.max(2, Math.ceil(space.frontage / 3));
+  const card = (icn, title, sub, body, right = '') => `<div class="card"><div class="hd"><span class="ico">${ic(icn)}</span><div style="flex:1"><h3>${title}</h3>${sub ? `<small>${sub}</small>` : ''}</div>${right}</div><div class="bd">${body}</div></div>`;
+  const row = (name, meta, amount, action) => `<div class="drow"><span class="fi">PDF</span><div style="flex:1"><b>${name}</b><small>${meta}</small></div>${amount ? `<span class="amt2">${amount}</span>` : ''}<button class="iconbtn" title="Download" onclick="A.toast('Downloads ${name.replace(/'/g, '')}.pdf')">${ic('dl')}</button></div>`;
+  const insSt = { none: ['Not uploaded', 'orange'], pending: ['Pending review', 'blue'], ok: ['Approved', 'green'] }[D2.ins];
+  const secSt = { none: ['Not provided', 'orange'], sent: ['Submitted · awaiting NPA', 'blue'] }[D2.sec.status];
+  const tp = form.tpAlt ? [form.tpAttn, form.tpAddr, form.tpTown, form.tpPostcode, form.tpCountry] : [`${form.first} ${form.last}`, form.addr1, form.town, form.postcode, form.country];
+  return chrome('dash', `
+    <div class="ph"><div class="eyebrow">Exhibitor dashboard</div><h2>${esc(form.company)}</h2><p>Everything about your Ploughing 2027 booking in one place.</p></div>
+    <div class="card summary-card"><div class="bd">
+      <div class="sc-top"><div><div class="lbl" style="margin:0">Order summary</div><div class="sc-ref">OU Form # ${b.ref}</div>
+        <div class="tags"><span class="tg ok">Submitted</span><span class="tg ${balance ? 'warn' : 'ok'}">${balance ? (paid ? 'Deposit paid' : 'Awaiting payment') : 'Paid in full'}</span><span class="tg ${D2.ins === 'ok' ? 'ok' : 'warn'}">Insurance: ${insSt[0]}</span></div></div>
+        <div class="sc-bal"><small>Balance due</small><b>${money(balance)}</b><span>by 30th June 2027</span>${balance ? `<button class="btn pri" onclick="A.payBalance()">Pay balance</button>` : ''}</div></div>
+      <div class="sc-grid">
+        <div><small>Area</small><b>${PROFILE.area}</b></div><div><small>Stand</small><b>To be allocated</b><span>after 28th Feb 2027</span></div>
+        <div><small>Space</small><b>${space.frontage}m × ${space.deep ? 18 : 9}m</b><span>${esc(space.category)}</span></div>
+        <div><small>Total</small><b>${money(q.total + extras)}</b><span>incl. VAT${extras ? ', with extras' : ''}</span></div><div><small>Paid</small><b>${money(paid)}</b></div><div><small>Credits</small><b>${money(credit)}</b></div>
+        ${S.extras.map(x => `<div><small>${EXTRAS[x.k].name}</small><b>${x.qty} × ${money(EXTRAS[x.k].price)}</b><span>Requested ${x.at}</span></div>`).join('')}</div>
+      <div class="row-btns"><button class="btn sec" onclick="A.toast('Downloads OU Form ${b.ref}.pdf')">${ic('dl')}Order PDF</button><button class="btn ghost" onclick="go('dashboard');A.jumpTo('statements')">${ic('vat')}Statements</button></div>
+    </div></div>
+    <div class="dgrid">
+      <div id="statements">${card('vat', 'Statements & credit notes', 'Invoices, statements and credits for your account', [
+        row('Invoice NPC27-0412', 'Exhibition space · issued ' + new Date().toLocaleDateString('en-IE'), money(q.total)),
+        row('Credit note CN-2711', 'Goodwill credit', '−' + money(credit)),
+        row('Statement of account', 'Invoices, payments and credits to date', money(balance) + ' due')].join(''))}</div>
+      ${card('dl', 'Documents for your booking', `Showing documents for <b>${PROFILE.area}</b> and all outdoor exhibitors`, MY_DOCS.map(([d, a]) => `<div class="drow"><span class="fi">PDF</span><div style="flex:1"><b>${d}</b><small>${a}</small></div><button class="iconbtn" onclick="A.toast('Opens ${d}.pdf')">${ic('ext')}</button></div>`).join(''))}
+      ${card('lock', 'Insurance', 'Upload your completed NPA insurance form', `<p class="st"><span class="tg ${insSt[1] === 'green' ? 'ok' : 'warn'}">${insSt[0]}</span></p>
+        ${D2.ins === 'none' ? `<button class="btn pri" onclick="A.dash('ins','pending','Insurance uploaded · the NPA will review it')">${ic('save')}Upload insurance</button>` : `<p class="muted">insurance_2027.pdf · uploaded ${D2.insAt}. We'll email you once it's reviewed.</p>`}`)}
+      ${card('people', 'Security details', 'Upload your security details when you have them', D2.sec.status === 'none' ? `<div class="grid" style="gap:14px">
+          ${fld('Security company', 'secCo', D2.sec.secCo, { cls: 'c6', sp: 'sec' })}${fld('Contact name', 'secName', D2.sec.secName, { cls: 'c6', sp: 'sec' })}
+          ${fld('Contact number', 'secPhone', D2.sec.secPhone, { cls: 'c6', sp: 'sec', type: 'tel' })}${fld('Number of security staff', 'secStaff', D2.sec.secStaff, { cls: 'c6', sp: 'sec', type: 'number' })}</div>
+          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"><button class="btn sec" onclick="A.toast('Choose a file to attach')">${ic('save')}Attach file</button><button class="btn pri" onclick="A.secSubmit()">Submit details</button></div>
+          <p class="muted" style="font-size:13px;margin:12px 0 0">We'll send a reminder email until your details are in. Once the NPA confirms them, the reminders stop.</p>`
+        : `<p class="st"><span class="tg warn">${secSt[0]}</span></p><p class="muted" style="margin:0">${esc(D2.sec.secCo)} · ${esc(D2.sec.secName)} · ${esc(D2.sec.secPhone)}. Reminders stop once the NPA confirms.</p>`)}
+      ${card('people', 'Wristbands', 'Entry wristbands for your stand team', `<div class="wb"><div><small>Included with your stand</small><b>${wbIncluded}</b></div><div><small>Extra bought</small><b>${D2.wb}</b></div><div><small>Total</small><b>${wbIncluded + D2.wb}</b></div></div>
+        <div class="buy"><span>Buy extra wristbands · ${money(15)} each</span><div class="stepper sm"><button type="button" onclick="A.wbq(-1)">−</button><input id="wbq" type="number" min="1" value="${D2.wbq}" onchange="A.wbq(0,this.value)"><button type="button" onclick="A.wbq(1)">+</button></div>
+          <button class="btn pri" onclick="A.buyWb()">Buy ${D2.wbq} for ${money(D2.wbq * 15)}</button></div>
+        <p class="muted" style="font-size:12.5px;margin:10px 0 0">${ic('lock')} Checkout and tickets are handled by Future Ticketing.</p>`)}
+      ${card('mail', 'Trade pack delivery', form.tpAlt ? 'Going to your alternative address' : 'Going to your company address', `<p style="margin:0 0 12px;line-height:1.6">${tp.filter(Boolean).map(esc).join('<br>')}</p><button class="btn sec" onclick="go('contact-tp')">${ic('home')}Change address</button>`)}
+    </div>
+    ${card('flag', 'Book something else', 'Other things you can book online for Ploughing 2027', `<div class="extras">${Object.entries(EXTRAS).map(([k, x]) => `<button class="extra ${x.online ? '' : 'off'}" onclick="${x.online ? `go('extra-${k}')` : `A.toast('Bars are booked directly with the NPA: npaexhibition@npa.ie')`}"><span class="pi">${ic(x.icon)}</span><b>${x.name}</b><small>${x.online ? `${money(x.price)} per ${x.unit}` : 'Contact the NPA'}</small></button>`).join('')}</div>`)}
+  `);
+}
+function vExtra(k) {
+  const x = EXTRAS[k], e = S.extraDraft;
+  return chrome('dash', `
+    <div class="ph"><div class="eyebrow"><a href="#/dashboard">← Dashboard</a></div><h2>Book ${x.name.toLowerCase()}</h2><p>${x.note}</p></div>
+    <div class="split"><div class="card"><div class="hd"><span class="ico">${ic(x.icon)}</span><div><h3>${x.name}</h3><small>${money(x.price)} per ${x.unit} + VAT</small></div></div><div class="bd"><div class="grid">
+      <div class="c6"><div class="lbl">How many?</div><div class="stepper"><button type="button" onclick="A.exq(-1)">−</button><input id="exq" type="number" min="1" value="${e.qty}" onchange="A.exq(0,this.value)"><span>${x.unit}${e.qty > 1 ? 's' : ''}</span><button type="button" onclick="A.exq(1)">+</button></div></div>
+      ${k === 'livestock' ? fld('Breed / type of animal', 'exNote', e.exNote, { cls: 'c6', sp: 'extra' }) : fld('Anything we should know?', 'exNote', e.exNote, { cls: 'c6', sp: 'extra' })}</div></div></div>
+      <div class="card sum"><div class="hd"><span class="ico">${ic('vat')}</span><div><h3>Cost</h3></div></div><div class="bd"><table class="est"><tr><td>${e.qty} × ${money(x.price)}</td><td>${money(e.qty * x.price)}</td></tr><tr><td>VAT 23%</td><td>${money(e.qty * x.price * .23)}</td></tr><tr class="tot"><td>Total</td><td>${money(e.qty * x.price * 1.23)}</td></tr></table>
+        <p class="muted" style="font-size:13px;margin:12px 0 0">Added to your invoice. Pay with the rest of your balance.</p></div></div></div>
+    <div class="actbar"><div class="in"><button class="btn ghost" onclick="go('dashboard')">${ic('back')}Dashboard</button><button class="btn pri" onclick="A.bookExtra('${k}')">Book ${e.qty} ${x.unit}${e.qty > 1 ? 's' : ''} ${ic('next')}</button></div></div>`);
 }
 
 // ---------- actions ----------
@@ -702,8 +814,20 @@ const A = {
     store.set('booked', S.booked);
     if (pay.method === 'card') toast('Wireframe: no card is charged'); go('done');
   },
-  restart() { for (const k of ['agreed', 'form', 'space', 'acct', 'booked']) store.set(k, null); Object.assign(S, { agreed: false, saved: null, space: null, acct: null, booked: null }); location.hash = '#/welcome'; location.reload(); },
-  agree(v) { S.agreed = v; store.set('agreed', v); $('#startbtn').disabled = !v; },
+  restart() { for (const k of ['agreed', 'form', 'space', 'acct', 'booked', 'sig', 'dash', 'extras']) store.set(k, null); Object.assign(S, { agreed: false, saved: null, space: null, acct: null, booked: null }); location.hash = '#/welcome'; location.reload(); },
+  agree(v) { S.agreed = v; store.set('agreed', v); A.sigCheck(); },
+  sigCheck() { const ok = S.agreed && (sigDrawn || S.sig) && $('#sigName').value.trim().length > 2; $('#startbtn').disabled = !ok; },
+  sigClear() { const c = $('#sig'); c.getContext('2d').clearRect(0, 0, c.width, c.height); sigDrawn = false; S.sig = null; store.set('sig', null); A.sigCheck(); },
+  sigSave() { if (!S.sig || sigDrawn) { S.sig = { name: $('#sigName').value.trim(), at: new Date().toLocaleDateString('en-IE'), img: $('#sig').toDataURL() }; store.set('sig', S.sig); } go('contact'); },
+  jumpTo(id) { setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 60); },
+  dash(k, v, msg) { S.dash[k] = v; if (k === 'ins') S.dash.insAt = new Date().toLocaleDateString('en-IE'); store.set('dash', S.dash); toast(msg); rerender(); },
+  secSubmit() { const s = S.dash.sec; if (!s.secCo.trim() || !s.secName.trim() || !s.secPhone.trim()) return toast('Add the company, contact name and number'); s.status = 'sent'; store.set('dash', S.dash); toast('Security details sent to the NPA'); rerender(); },
+  wbq(d, v) { S.dash.wbq = Math.max(1, Math.min(50, Math.round(v != null ? +v || 1 : S.dash.wbq + d))); store.set('dash', S.dash); rerender(); },
+  buyWb() { const n = S.dash.wbq; S.dash.wb += n; store.set('dash', S.dash); toast(`Wireframe: Future Ticketing checkout for ${n} wristbands (${money(n * 15)})`); rerender(); },
+  payBalance() { toast('Wireframe: opens a Stripe payment link for the balance'); },
+  exq(d, v) { S.extraDraft.qty = Math.max(1, Math.min(99, Math.round(v != null ? +v || 1 : S.extraDraft.qty + d))); rerender(); },
+  bookExtra(k) { S.extras.push({ k, qty: S.extraDraft.qty, note: S.extraDraft.exNote, at: new Date().toLocaleDateString('en-IE') }); store.set('extras', S.extras); toast(`${EXTRAS[k].name}: ${S.extraDraft.qty} booked and added to your invoice`); S.extraDraft = { qty: 1, exNote: '' }; go('dashboard'); },
+  tpAlt(v) { form.tpAlt = v; rerender(); $('#savebtn') && ($('#savebtn').disabled = !dirty()); },
   set(k, v) {
     form[k] = v;
     if (k === 'company' && form.sameAsCompany) { form.signage = v; const s = $('#signage'); if (s) s.value = v; }
@@ -724,10 +848,14 @@ document.addEventListener('click', () => $('#acct')?.classList.remove('open'));
 function rerender() { const y = scrollY; render(); scrollTo(0, y); }
 
 // ---------- router ----------
-const ROUTES = { login: () => vLogin(), forgot: () => vLogin(true), welcome: vWelcome, documents: vDocuments, terms: vTerms, contact: vContact, account: vAccount, space: vSpace, payment: vPayment, done: vDone };
+const ROUTES = { login: () => vLogin(), forgot: () => vLogin(true), welcome: vWelcome, documents: vDocuments, terms: vTerms, contact: vContact, account: vAccount, space: vSpace, payment: vPayment, done: vDone, dashboard: vDash, 'contact-tp': () => { setTimeout(() => A.jumpTo('tradepack')); return vContact(); } };
 function render() {
   let r = location.hash.replace(/^#\/?/, '') || 'login';
+  const ex = r.match(/^extra-(\w+)$/);
+  if (ex && EXTRAS[ex[1]] && S.booked) return void ($('#root').innerHTML = vExtra(ex[1]));
   if (!ROUTES[r]) r = 'login';
+  if ((r === 'dashboard') && !S.booked) r = 'welcome';
+  if (r === 'contact-tp' && !S.booked) r = 'contact';
   if (!S.user && r !== 'login' && r !== 'forgot') r = 'login';
   // Each step needs the one before it; a submitted booking only shows its confirmation.
   const order = ['terms', 'contact', 'account', 'space', 'payment', 'done'];
@@ -737,6 +865,19 @@ function render() {
   if (location.hash !== '#/' + r) history.replaceState(null, '', '#/' + r);
   document.title = r === 'login' || r === 'forgot' ? 'Login · Trade Booking Portal' : 'Trade Booking Portal';
   $('#root').innerHTML = ROUTES[r]();
+  if (r === 'terms') initSig();
+}
+// Signature pad on the terms page.
+let sigDrawn = false;
+function initSig() {
+  const c = $('#sig'); if (!c) return;
+  const g = c.getContext('2d'); g.lineWidth = 2.4; g.lineCap = 'round'; g.strokeStyle = '#17221b';
+  if (S.sig && S.sig.img) { const im = new Image(); im.onload = () => g.drawImage(im, 0, 0); im.src = S.sig.img; }
+  let down = false;
+  const pt = e => { const r = c.getBoundingClientRect(); return [(e.clientX - r.left) * c.width / r.width, (e.clientY - r.top) * c.height / r.height]; };
+  c.onpointerdown = e => { down = true; c.setPointerCapture(e.pointerId); g.beginPath(); g.moveTo(...pt(e)); };
+  c.onpointermove = e => { if (!down) return; g.lineTo(...pt(e)); g.stroke(); sigDrawn = true; };
+  c.onpointerup = () => { down = false; A.sigCheck(); };
 }
 addEventListener('hashchange', () => { tried = false; render(); scrollTo(0, 0); });
 render();

@@ -43,6 +43,19 @@ function vDash() {
         ${key('Emails', 'Compose, reminders, schedules, logs', 'mail', '#/emails/compose')}
         ${key('Settings', 'Categories, date pricing, rates, text', 'settings', '#/settings')}
       </div></div>
+    <div class="card" style="margin-bottom:16px"><div class="card-h"><h3>From NPA's wishlist</h3><span class="muted small">Where each item lives in the wireframes</span></div>
+      <div class="card-b grid g4" style="gap:10px">
+        ${key('Correspondence & calls', 'Shared inbox, call log and notes per exhibitor', 'phone', '#/correspondence')}
+        ${key('Change history', 'Who changed what, with old and new values', 'history', '#/history')}
+        ${key('Duplicate & shared entries', 'Merge, record as shared, or dismiss', 'copy', '#/duplicates')}
+        ${key('Big Red Cloud payments', 'Payments synced and matched to orders', 'euro', '#/payments')}
+        ${key('Prices any time', 'Booking types, price bands and per-order overrides', 'tag', '#/settings/bookings')}
+        ${key('Insurance criteria', 'Checklist that drives approve or reject', 'shield', '#/settings/insurance')}
+        ${key('Docs per venue or area', 'e.g. Agri Pavilion drawings for Agri Pavilion only', 'doc', '#/docs')}
+        ${key('AutoCAD', 'Import and export stand numbers for the site map', 'map', '#/allocation')}
+        ${key('Security details', 'Reminder stops once NPA confirms', 'lock', '#/emails/configs')}
+        ${key('Exhibitor dashboard', 'Order summary, statements, wristbands, more bookings', 'ext', 'portal.html#/dashboard')}
+      </div></div>
     <div class="grid" style="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px" id="dashcols">
       <div class="grid" style="gap:16px;align-content:start">
         <div class="card"><div class="card-h"><h3>Needs attention</h3></div>
@@ -98,7 +111,7 @@ function vUser(id) {
   return shell([['Authentication and Authorization'], ['Users', '#/users'], [u.isNew ? 'Add user' : u.username]], `
     ${head(title, u.isNew ? 'Create a login for an exhibitor, then choose what they can book.' : `${esc(u.name)} · last login ${fdt(u.lastLogin)}`,
       u.isNew ? '' : btn('Email login details', `A.toast('Login details sent to ${esc(u.email)}')`, '', 'mail') + btn('History', 'A.userHistory()', '', 'history'))}
-    ${jump([['login', 'Login'], ['booking', 'Booking permissions'], ['perm', 'Permissions'], ['profile', 'Profile'], ['orders', 'Orders']])}
+    ${jump([['login', 'Login'], ['booking', 'Booking permissions'], ['perm', 'Permissions'], ['profile', 'Profile'], ['orders', 'Orders'], ['correspondence', 'Correspondence']])}
     <form id="form" onsubmit="return false">
     ${sec('login', 'Login details', fields([F('Username', 'username', u.username, 'text', { help: 'Usually the account code, e.g. ABC001. Exhibitors log in with this.' }),
       u.isNew ? F('Password', 'pw', '', 'password', { help: 'Leave blank to email the exhibitor a set-password link.' }) : F('Password', '', '', 'ro', { html: `<span class="mono">••••••••••</span> &nbsp;<a href="javascript:A.toast('Password reset link sent to ${esc(u.email)}')">Send reset link</a>` }),
@@ -108,6 +121,7 @@ function vUser(id) {
       ${fields([F('Client type', 'clientType', u.clientType, 'select', { opts: [['OU', 'Outdoor (OU)'], ['IN', 'Indoor (IN)'], ['', '— Staff / none']], on: 'A.userLive()', help: 'Sets which order form they get: IN Form or OU Form.' }),
         F('Assigned area', 'perms.area', u.perms.area || '', 'select', { opts: [['', '— Not assigned yet'], ...(u.clientType === 'IN' ? D.VENUES : D.OUT_AREAS).map(a => [a, a])], help: 'Based on where they exhibited in previous years. This is the only area they can book in.' }),
         F('Previous years', '', '', 'ro', { html: (u.pastYears || []).length ? u.pastYears.map(p => `<div class="small"><b>${p.year}</b> · ${esc(p.area)} · ${esc(u.clientType === 'IN' ? p.block + p.stand : 'Row ' + p.row + ', Stand ' + p.stand)}</div>`).join('') : '<span class="dim small">New exhibitor, no previous stands</span>' }),
+        F('Other bookings online', 'perms.extras', u.perms.extras || [], 'multi', { full: true, opts: D.settings.bookingTypes.filter(b => !['outdoor', 'indoor'].includes(b.k)).map(b => [b.k, b.name + (b.online ? '' : ' (online booking off)')]), help: 'Livestock, porch, bar and shop bookings this exhibitor can make from their dashboard.' }),
         F('Can order woodbark', 'perms.woodbark', u.perms.woodbark, 'checkbox', { help: 'Shows the woodbark order form in their portal.' }),
         F('Outdoor exhibition space', 'perms.outdoor', u.perms.outdoor, 'checkbox', { help: 'Can book outdoor frontage. Outdoor corners cannot be booked.', on: 'A.userLive()' }),
         F('Can request a corner stand', 'perms.corners', u.perms.corners, 'checkbox', { help: 'Indoor venues only. Subject to the corners left in Corner allocations.' }),
@@ -125,6 +139,7 @@ function vUser(id) {
       ${D.woodbark.filter(w => w.userId === u.id).map(w => `<tr><td><a class="lnk" href="#/woodbark/${w.id}">Woodbark Order Form # ${w.id}</a></td><td>${esc(w.delivery)}</td><td class="num">${money(w.total)}</td><td>${yesNo(true)}</td><td></td></tr>`).join('')}
       </tbody></table></div>` : '<div class="empty">No orders yet. They appear here once the exhibitor starts a booking.</div>', { right: u.isNew ? '' : link('Add order form', `javascript:A.newOrderFor(${u.id})`, 'sm') })}
     </form>
+    ${u.isNew || u.staff ? '' : corrSec(u.id)}
     ${savebar('A.saveUser', u.isNew ? '' : 'A.delUser()')}`);
 }
 A.userLive = () => { collect(document.getElementById('form'), draft); if (draft.clientType === 'IN' && !draft.perms.venues.length) draft.perms.venues = []; render(); };
@@ -136,6 +151,8 @@ A.saveUser = mode => {
   const isNew = draft.isNew; delete draft.isNew; delete draft.pw; delete draft.name2;
   draft.code = draft.code || draft.username;
   D.groups.forEach(g => { g.members = g.members.filter(m => m !== draft.username); if ((draft.groups || []).includes(g.name)) g.members.push(draft.username); });
+  const changes = isNew ? [] : diff(D.users.find(u => u.id === draft.id), draft);
+  logAudit('User ' + draft.username, '#/users/' + draft.id, isNew ? 'Added' : changes.length ? 'Changed ' + changes.map(c => c[0]).slice(0, 4).join(', ') : 'Saved with no changes', changes);
   if (isNew) D.users.push(draft); else D.users[D.users.findIndex(u => u.id === draft.id)] = draft;
   pushRecent(isNew ? 'add' : 'edit', draft.username, 'User', '#/users/' + draft.id);
   toast(`The user “${draft.username}” was ${isNew ? 'added' : 'changed'} successfully.`);
@@ -173,19 +190,19 @@ A.saveGroup = id => {
 // ---------- docs ----------
 function vDocs(id) {
   if (id === 'add') { setTimeout(() => A.docModal()); location.hash = '#/docs'; return ''; }
-  return shell([['Docs'], ['Docs']], head('Docs', 'Documents shared with exhibitors in their portal: floor plans, manuals, forms and guidelines.', btn('Add doc', 'A.docModal()', 'pri', 'upload')) + listView({
+  return shell([['Docs'], ['Docs']], head('Docs', 'Documents shared with exhibitors in their portal. Target a doc at one venue or area so exhibitors only see what relates to their booking.', btn('Add doc', 'A.docModal()', 'pri', 'upload')) + listView({
     key: 'docs', coll: 'docs', noun: 'docs', rows: D.docs, link: d => `javascript:A.docModal(${d.id})`, search: [d => d.title, d => d.file],
-    cols: [{ h: 'Doc', v: d => d.title }, { h: 'Shown to', v: d => d.audience, html: d => d.audience === 'Indoor' ? '<span class="tag in">Indoor</span>' : d.audience === 'Outdoor' ? '<span class="tag ou">Outdoor</span>' : '<span class="tag">All exhibitors</span>' },
+    cols: [{ h: 'Doc', v: d => d.title }, { h: 'Shown to', v: d => d.audience, html: d => d.audience === 'Indoor' || D.VENUES.includes(d.audience) ? `<span class="tag in">${esc(d.audience === 'Indoor' ? 'All indoor' : d.audience + ' only')}</span>` : d.audience === 'Outdoor' || D.OUT_AREAS.includes(d.audience) ? `<span class="tag ou">${esc(d.audience === 'Outdoor' ? 'All outdoor' : d.audience + ' only')}</span>` : '<span class="tag">All exhibitors</span>' },
       { h: 'File', v: d => d.file, html: d => `<a class="mono" href="javascript:A.fakeOpen('${esc(d.file)}')">${esc(d.file)}</a>` }, { h: 'Size', v: d => d.size, html: d => (d.size / 1024).toFixed(1) + ' MB', num: true },
       { h: 'Uploaded', v: d => d.uploaded, html: d => fd(d.uploaded) }, { h: 'Visible in portal', v: d => d.visible, html: d => `<label class="toggle"><input type="checkbox" ${d.visible ? 'checked' : ''} onchange="A.tog('docs',${d.id},'visible')"><span></span></label>` }],
-    filters: [{ label: 'shown to', k: 'aud', get: d => d.audience, opts: [['All exhibitors', 'All exhibitors'], ['Indoor', 'Indoor'], ['Outdoor', 'Outdoor']] }, { label: 'visible', k: 'vis', opts: yn(d => d.visible) }],
+    filters: [{ label: 'shown to', k: 'aud', get: d => d.audience, opts: [['All exhibitors', 'All exhibitors'], ['Indoor', 'All indoor'], ['Outdoor', 'All outdoor'], ...[...D.VENUES, ...D.OUT_AREAS].map(a => [a, a + ' only'])] }, { label: 'visible', k: 'vis', opts: yn(d => d.visible) }],
     bulk: [['Show in portal', ids => D.docs.filter(d => ids.includes(String(d.id))).forEach(d => d.visible = true)], ['Hide from portal', ids => D.docs.filter(d => ids.includes(String(d.id))).forEach(d => d.visible = false)]]
   }));
 }
 A.tog = (coll, id, k) => { const r = D[coll].find(x => x.id === id); r[k] = !r[k]; toast('Saved'); render(); };
 A.docModal = id => {
   const d = id ? D.docs.find(x => x.id === id) : { title: '', audience: 'All exhibitors', file: '', visible: true };
-  modal(id ? 'Change doc' : 'Add doc', `<div id="dform" class="grid" style="gap:14px">${F('Title', 'title', d.title)}${F('Shown to', 'audience', d.audience, 'select', { opts: ['All exhibitors', 'Indoor', 'Outdoor'] })}${F('File', 'file', d.file, 'file')}${F('Visible in exhibitor portal', 'visible', d.visible, 'checkbox')}</div>`,
+  modal(id ? 'Change doc' : 'Add doc', `<div id="dform" class="grid" style="gap:14px">${F('Title', 'title', d.title)}${F('Shown to', 'audience', d.audience, 'select', { opts: [['All exhibitors', 'All exhibitors'], ['Indoor', 'All indoor exhibitors'], ['Outdoor', 'All outdoor exhibitors'], ...D.VENUES.map(v => [v, v + ' exhibitors only']), ...D.OUT_AREAS.map(v => [v, v + ' exhibitors only'])], help: 'Pick a venue or area to show this only to exhibitors booked there, e.g. Agri Pavilion layout drawings.' })}${F('File', 'file', d.file, 'file')}${F('Visible in exhibitor portal', 'visible', d.visible, 'checkbox')}</div>`,
     `${id ? `<button class="btn ghost-danger" style="margin-right:auto" onclick="A.close();D.docs=D.docs.filter(x=>x.id!==${id});A.toast('Doc deleted');render()">Delete</button>` : ''}<button class="btn" onclick="A.close()">Cancel</button><button class="btn pri" onclick="A.saveDoc(${id || 0})">Save</button>`);
 };
 A.saveDoc = id => {
@@ -277,6 +294,7 @@ function vInsReview(id) {
           <div class="row"><span class="muted" style="width:110px">Uploaded</span>${fdt(r.uploadedAt)}</div>
         </div></div>
         <div class="card"><div class="card-h"><h3>Decision</h3>${r.reviewedAt ? `<span class="r muted small">Last reviewed ${fdt(r.reviewedAt)} by ${esc(r.reviewer)}</span>` : ''}</div><div class="card-b grid" style="gap:12px" id="decide">
+          <div><div class="muted small" style="margin-bottom:6px;font-weight:600">Check the document against NPA's criteria</div><div class="crit">${D.settings.insuranceCriteria.map((c, i) => `<label><input type="checkbox" data-reason="${esc(c.reason)}" ${r.status === 'Approved' ? 'checked' : ''} onchange="A.critUI()"> ${esc(c.check)}</label>`).join('')}</div><div class="dim small" style="margin-top:6px">Anything left unticked selects Reject with the matching reason. <a href="#/settings/insurance">Edit criteria</a></div></div>
           <div class="optchips"><label><input type="radio" name="dec" value="Approved" ${r.status !== 'Rejected' ? 'checked' : ''} onchange="A.decUI()"> Approve</label><label><input type="radio" name="dec" value="Rejected" ${r.status === 'Rejected' ? 'checked' : ''} onchange="A.decUI()"> Reject</label></div>
           <div id="rej" style="display:${r.status === 'Rejected' ? 'grid' : 'none'};gap:12px">${F('Rejection reason', 'reason', r.reason || REASONS[0], 'select', { opts: REASONS })}${F('Note to exhibitor', 'note', r.note, 'textarea', { rows: 3, ph: 'Optional. Included in the rejection email.' })}</div>
           ${F('Email the exhibitor the outcome', 'email', true, 'checkbox', { help: `Sends to ${esc(o.account.email)}` })}
@@ -285,6 +303,12 @@ function vInsReview(id) {
         ${prior.length ? `<div class="card"><div class="card-h"><h3>Earlier uploads for this order</h3></div>${prior.map(p => `<div class="ra"><div style="flex:1"><a href="#/insurance/${p.id}">#${p.id}</a> ${pill(p.status)}<small>${esc(p.reason || '')} ${fdt(p.uploadedAt)}</small></div></div>`).join('')}</div>` : ''}
       </div></div>`);
 }
+A.critUI = () => {
+  const miss = [...document.querySelectorAll('.crit input')].filter(x => !x.checked);
+  document.querySelector(`input[name=dec][value=${miss.length ? 'Rejected' : 'Approved'}]`).checked = true;
+  if (miss.length) document.querySelector('#rej [name=reason]').value = miss[0].dataset.reason;
+  A.decUI();
+};
 A.decUI = () => { const v = document.querySelector('input[name=dec]:checked').value; document.getElementById('rej').style.display = v === 'Rejected' ? 'grid' : 'none'; };
 A.decide = id => {
   const r = D.ins.find(x => x.id === id);

@@ -3,7 +3,7 @@
 function priceOrder(o) {
   const s = D.settings, indoor = o.clientType === 'IN', e = s.electricity;
   const tier = D.tierFor(indoor ? s.indoorDates : s.outdoorDates, o.submittedDate || now());
-  const rate = !indoor && o.is18m && tier.price18 ? tier.price18 : tier.price;
+  const rate = +o.priceOverride > 0 ? +o.priceOverride : !indoor && o.is18m && tier.price18 ? tier.price18 : tier.price;
   const space = (+o.frontage || 0) * rate;
   const corner = indoor && o.hasCorner ? s.cornerPremium : 0;
   const elec = o.util.noElec ? 0 : (+o.util.qtyWt || 0) * e.rateWt + (+o.util.qtyAmp || 0) * e.rateAmp;
@@ -82,7 +82,7 @@ function vOrder(id) {
       <div class="row wrap" style="gap:6px">${o.submitted ? pill('Submitted', 'green') : pill('Not submitted', 'grey')}${o.completed ? pill('Completed', 'green') : ''}${pill('Insurance: ' + o.insuranceStatus, PILL[o.insuranceStatus])}${o.pay.confirmed ? pill('Paid', 'green') : o.pay.po ? pill('Paying by PO', 'blue') : o.submitted ? pill('Unpaid', 'orange') : ''}</div>
       <div style="margin-left:auto;text-align:right"><div class="muted small">Grand total</div><div class="big">${money(o.isNew ? p.total : o.grandTotal)}</div></div>
     </div></div>
-    ${jump([['booking', 'Booking'], ['stand', 'Stand location'], ['status', 'Status & insurance'], ['account', 'Account'], ['company', 'Company'], ['space', 'Exhibition space'], ['structure', 'Structure'], ['utilities', 'Utilities'], ['payment', 'Payment'], ['invoice', 'Invoices'], ['related', 'Reviews, POs & logs']])}
+    ${jump([['booking', 'Booking'], ['stand', 'Stand location'], ['status', 'Status & insurance'], ['account', 'Account'], ['company', 'Company'], ['space', 'Exhibition space'], ['tradepack', 'Trade pack'], ['structure', 'Structure'], ['utilities', 'Utilities'], ['security', 'Security'], ['wristbands', 'Wristbands'], ['payment', 'Payment'], ['invoice', 'Invoices & statements'], ['related', 'Reviews, POs & logs'], ['correspondence', 'Correspondence']])}
     <form id="form" onsubmit="return false">
     ${sec('booking', 'Booking', fields([
       F('User', 'userId', o.userId, 'select', { num: true, opts: exhibitors, on: 'A.orderLive()' }), F('Client type', 'clientType', o.clientType, 'select', { opts: [['OU', 'Outdoor (OU Form)'], ['IN', 'Indoor (IN Form)']], on: 'A.orderLive()' }),
@@ -104,6 +104,7 @@ function vOrder(id) {
       F('Paid via Stripe', '', '', 'ro', { html: o.paidStripe ? '<span class="yes">Yes</span>' : 'No' }),
       F('Insurance form', 'insuranceFile', o.insuranceFile, 'file'),
       F('Insurance status', 'insuranceStatus', o.insuranceStatus, 'select', { opts: ['Not uploaded', 'Pending Review', 'Approved', 'Rejected'], help: insRows.length ? `<a href="#/insurance/${insRows[0].id}">Open insurance review #${insRows[0].id} →</a>` : '' }),
+      F('T&C signature', '', '', 'ro', { html: o.signature ? `<span class="sig">${esc(o.signature.name)}</span> <span class="dim small">signed ${fdt(o.signature.at)}</span>` : '<span class="dim">Not signed yet</span>' }),
       F('Categories', 'categories', o.categories, 'multi', { full: true, num: true, opts: D.CATEGORIES.filter(c => c.area === 'Both' || c.area === (indoor ? 'Indoor' : 'Outdoor')).map(c => [c.id, c.name]) })]))}
     ${sec('account', 'Account', fields([F('Firstname', 'account.first', o.account.first), F('Lastname', 'account.last', o.account.last), F('Landline', 'account.landline', o.account.landline), F('Email', 'account.email', o.account.email, 'email')]), { note: `Account: ${esc(o.account.first)} ${esc(o.account.last)}` })}
     ${sec('company', 'Company', fields([
@@ -116,8 +117,10 @@ function vOrder(id) {
       `<div class="f"><div class="chkgrid">${F('No VAT', 'company.noVat', o.company.noVat, 'checkbox')}${F('VAT exempt', 'company.vatExempt', o.company.vatExempt, 'checkbox')}</div></div>`,
       F('Form 56B', 'company.form56b', o.company.form56b || '', 'file'), F('Signatory firstname', 'company.signFirst', o.company.signFirst), F('Signatory lastname', 'company.signLast', o.company.signLast),
       F('Trade arena signage', 'company.signage', o.company.signage, 'text', { help: 'Printed on the stand fascia board.' })], 'three'), { note: `Company: ${esc(o.company.name)}` })}
+    ${tradePackSec(o)}
     ${sec('space', 'Exhibition space', fields([
       F('Category', 'category', o.category, 'select', { num: true, opts: D.CATEGORIES.map(c => [c.id, c.name]), help: 'Category this exhibition space belongs to' }),
+      F(`Price override <span class="dim">(${indoor ? 'per unit' : 'per metre'})</span>`, 'priceOverride', o.priceOverride ?? '', 'number', { ph: `Band rate ${money(p.tier.price)}`, on: 'A.orderLiveSoft()', help: 'Leave blank to use the price band. Set it to charge this exhibitor a different rate at any time.' }),
       F(indoor ? 'Units (3x3m stands)' : 'Frontage (metres)', 'frontage', o.frontage, 'number', { on: 'A.orderLiveSoft()' }), indoor ? F('Admin depth', 'adminDepth', o.adminDepth, 'number') : F('Depth', 'is18m', o.is18m ? 'true' : '', 'select', { opts: [['', '9m depth'], ['true', '18m depth']], on: 'A.orderLive()', help: 'The exhibitor picks 9m or 18m. Each has its own rate per metre.' }),
       `<div class="f full"><label class="l">Corner information</label>${indoor ? `<div class="row wrap" style="gap:14px">${F('Has corner', 'hasCorner', o.hasCorner, 'checkbox', { on: 'A.orderLive()' })}
          <div style="min-width:220px">${F('Corner status', 'cornerStatus', o.cornerStatus, 'select', { opts: ['No Corner', 'Requested', 'Allocated'] })}</div>
@@ -136,6 +139,8 @@ function vOrder(id) {
       F('Quantity WT / 6kW', 'util.qtyWt', o.util.qtyWt, 'number', { help: money(D.settings.electricity.rateWt) + ' each', on: 'A.orderLiveSoft()' }), F('Quantity Amp / 3ph', 'util.qtyAmp', o.util.qtyAmp, 'number', { help: money(D.settings.electricity.rateAmp) + ' each', on: 'A.orderLiveSoft()' }),
       F('No electricity', 'util.noElec', o.util.noElec, 'checkbox'), F('Water', 'util.water', o.util.water, 'checkbox', { help: money(D.settings.electricity.waterRate) + ' + VAT' }),
       F('Amount', '', '', 'ro', { html: money(p.elec + p.water) }), F('VAT', '', '', 'ro', { html: money((p.elec + p.water) * .23) }), F('Total amount', '', '', 'ro', { html: money((p.elec + p.water) * 1.23) }), F('Litter rate', '', '', 'ro', { html: money(p.litter) })], 'three'))}
+    ${securitySec(o)}
+    ${wristbandSec(o)}
     ${sec('payment', 'Payment', fields([
       `<div class="f full"><div class="chkgrid">${[F('By card', 'pay.card', o.pay.card, 'checkbox'), F('By bank', 'pay.bank', o.pay.bank, 'checkbox'), F('By cheque', 'pay.cheque', o.pay.cheque, 'checkbox'), F('By PO', 'pay.po', o.pay.po, 'checkbox'),
         F('Is full amount', 'pay.full', o.pay.full, 'checkbox'), F('Is payment submitted', 'pay.submitted', o.pay.submitted, 'checkbox'), F('Payment confirmed', 'pay.confirmed', o.pay.confirmed, 'checkbox'),
@@ -144,14 +149,16 @@ function vOrder(id) {
     ${sec('invoice', 'Invoices & receipt', fields([
       F('Exhibition invoice', '', '', 'ro', { html: o.invoice ? `<a href="javascript:A.fakeOpen('${o.invoice}')">${o.invoice}</a>` : '<span class="dim">–</span>' }),
       F('Litter invoice', '', '', 'ro', { html: '<span class="dim">–</span>' }), F('Water invoice', '', '', 'ro', { html: o.util.water && o.invoice ? `<a href="javascript:A.fakeOpen('water')">invoices/water_${o.id}.pdf</a>` : '<span class="dim">–</span>' }),
-      F('Receipt file', '', '', 'ro', { html: o.pay.confirmed ? `<a href="javascript:A.fakeOpen('receipt')">receipts/receipt_${o.id}.pdf</a>` : '<span class="dim">–</span>' })]))}
+      F('Receipt file', '', '', 'ro', { html: o.pay.confirmed ? `<a href="javascript:A.fakeOpen('receipt')">receipts/receipt_${o.id}.pdf</a>` : '<span class="dim">–</span>' })]) + creditsBlock(o), { right: o.isNew ? '' : btn('Email statement', `A.toast('Statement emailed to ${esc(o.account.email)} and shown on their dashboard')`, 'sm', 'mail') + ' ' + btn('Issue credit note', `A.creditModal(${o.id})`, 'sm', 'plus') })}
     <section class="card sec" id="s-related"><div class="card-h"><h3>Insurance reviews</h3><div class="r">${o.isNew ? '' : btn('Add insurance review', `A.addInsReview(${o.id})`, 'sm', 'plus')}</div></div>
       ${t(['ID', 'Status', 'Reason', 'Uploaded', 'Reviewed'], insRows.map(r => `<tr><td><a class="lnk" href="#/insurance/${r.id}">#${r.id}</a></td><td>${pill(r.status)}</td><td>${esc(r.reason) || '–'}</td><td>${fdt(r.uploadedAt)}</td><td>${fdt(r.reviewedAt)}</td></tr>`), 'No insurance uploaded yet')}
       <div class="card-h" style="border-top:1px solid var(--line-2);background:var(--brand-50)"><h3 style="color:var(--brand-800);text-transform:uppercase;font-size:12px;letter-spacing:.7px">Purchase orders</h3><div class="r">${o.isNew ? '' : btn('Add purchase order', `A.poModal(${o.id})`, 'sm', 'plus')}</div></div>
       ${t(['PO number', 'Amount', 'Created at', 'Status', 'Notes'], poRows.map(x => `<tr><td>${esc(x.number)}</td><td class="num">${money(x.amount)}</td><td>${fdt(x.createdAt)}</td><td>${pill(x.status)}</td><td>${esc(x.notes) || '–'}</td></tr>`), 'No purchase orders')}
       <div class="card-h" style="border-top:1px solid var(--line-2);background:var(--brand-50)"><h3 style="color:var(--brand-800);text-transform:uppercase;font-size:12px;letter-spacing:.7px">Payment processing log</h3></div>
       ${t(['Created at', 'Level', 'Step', 'Message'], logRows.map(l => `<tr><td>${fdt(l.at)}</td><td>${pill(l.level)}</td><td class="mono">${esc(l.step)}</td><td>${esc(l.msg)}</td></tr>`), 'No card payments for this order')}
+      ${brcBlock(o)}
     </section>
+    ${o.isNew ? '' : corrSec(o.userId, o.id)}
     </form>
     ${savebar('A.saveOrder', o.isNew ? '' : 'A.delOrder()')}`);
 }
@@ -164,7 +171,9 @@ A.saveOrder = mode => {
   const u = D.users.find(x => x.id === draft.userId);
   draft.grandTotal = priceOrder(draft).total;
   if (draft.submittedDate && draft.submittedDate.length === 10) draft.submittedDate = new Date(draft.submittedDate + 'T12:00:00').toISOString();
-  draft.history.push({ at: now(), who: 'CRM_ADMIN', what: isNew ? 'Added via admin' : 'Changed via admin' });
+  const changes = isNew ? [] : diff(orderById(draft.id), draft);
+  draft.history.push({ at: now(), who: 'CRM_ADMIN', what: isNew ? 'Added via admin' : changes.length ? 'Changed ' + changes.map(c => c[0]).slice(0, 4).join(', ') : 'Saved with no changes' });
+  logAudit(`${draft.clientType} Form # ${draft.id}`, '#/orders/' + draft.id, isNew ? 'Added' : changes.length ? 'Changed ' + changes.map(c => c[0]).slice(0, 4).join(', ') : 'Saved with no changes', changes);
   if (isNew) D.orders.unshift(draft); else D.orders[D.orders.findIndex(o => o.id === draft.id)] = draft;
   const r = D.ins.find(x => x.orderId === draft.id);
   if (r && draft.insuranceStatus !== 'Not uploaded') r.status = draft.insuranceStatus === 'Pending Review' ? 'Pending' : draft.insuranceStatus;
@@ -283,7 +292,7 @@ function vAlloc() {
   const chip = (v, label, n) => `<button class="chip ${st.area === v ? 'on' : ''}" onclick="A.allocArea('${esc(v)}')">${esc(label)}${n != null ? ` <span style="opacity:.7">${n}</span>` : ''}</button>`;
   return shell([['Order'], ['Stand allocation']], `
     ${head('Stand allocation', "Exhibitors book space in the area they're assigned, based on where they were in previous years. They never pick a stand: NPA allocates every stand number here after bookings close.",
-      btn('Allocation sheet', 'A.allocCsv()', '', 'download') + btn("Use last year's stands", 'A.autoAlloc()', '', 'history') + btn(sys.standsPublished ? 'Republish stand numbers' : 'Publish stand numbers', 'A.publishStands()', 'pri', 'send'))}
+      btn('Import from AutoCAD', 'A.cadImport()', '', 'upload') + btn('Export for AutoCAD', 'A.cadExport()', '', 'download') + btn('Allocation sheet', 'A.allocCsv()', '', 'download') + btn("Use last year's stands", 'A.autoAlloc()', '', 'history') + btn(sys.standsPublished ? 'Republish stand numbers' : 'Publish stand numbers', 'A.publishStands()', 'pri', 'send'))}
     ${sys.standsPublished ? `<div class="banner ok">${ic('check')}<div>Stand numbers are <b>published</b>. Exhibitors can see their stand in the portal. Changing a stand now needs a fresh publish to email them.</div></div>`
       : `<div class="banner warn">${ic('alert')}<div>${closed ? 'Bookings are closed.' : `Bookings close on <b>${fd(sys.bookingClose)}</b>.`} You can draft allocations at any time; exhibitors don't see a stand number until you <b>publish</b>.</div></div>`}
     <div class="grid g4" style="margin:16px 0">

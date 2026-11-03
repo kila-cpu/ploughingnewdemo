@@ -224,10 +224,10 @@
   });
 
   // ---------- docs ----------
-  const docNames = [['Indoor Plans: The Hub', 'Indoor'], ['Indoor Plans: The Dome', 'Indoor'], ['Indoor Plans: Agri Pavilion', 'Indoor'], ['Outdoor - Fire Safety Checklist', 'Outdoor'],
-    ['Indoor - The Hub Blank', 'Indoor'], ['Indoor - The Dome Blank', 'Indoor'], ['Indoor - Agri Pavilion Blank', 'Indoor'], ['Brochure Map', 'All exhibitors'], ['Catering Solutions', 'All exhibitors'],
+  const docNames = [['Indoor Plans: The Hub', 'The Hub'], ['Indoor Plans: The Dome', 'The Dome'], ['Indoor Plans: Agri Pavilion', 'Agri Pavilion'], ['Agri Pavilion Marquee Layout', 'Agri Pavilion'], ['Block 2 – Machinery Layout', 'Block 2 – Machinery'], ['Outdoor - Fire Safety Checklist', 'Outdoor'],
+    ['Indoor - The Hub Blank', 'The Hub'], ['Indoor - The Dome Blank', 'The Dome'], ['Indoor - Agri Pavilion Blank', 'Agri Pavilion'], ['Brochure Map', 'All exhibitors'], ['Catering Solutions', 'All exhibitors'],
     ['Indoor Electrical Order Form', 'Indoor'], ['Indoor Exhibitor Manual', 'Indoor'], ['Outdoor Exhibitors - Porch Manual', 'Outdoor'], ['Outdoor Exhibitors Manual', 'Outdoor'],
-    ['Indoor 3x3 Stand Info', 'Indoor'], ['Indoor Arcades Exhibitor Manual', 'Indoor'], ['Deposit Return Scheme Guidelines', 'All exhibitors'], ['Food Waste Guidelines', 'All exhibitors'],
+    ['Indoor 3x3 Stand Info', 'Indoor'], ['Indoor Arcades Exhibitor Manual', 'Arcades'], ['Deposit Return Scheme Guidelines', 'All exhibitors'], ['Food Waste Guidelines', 'All exhibitors'],
     ['Outdoor Regional Broadband', 'Outdoor'], ['Indoor Regional Broadband', 'Indoor'], ['Exhibition Map', 'All exhibitors'], ['Exhibitor FAQ', 'All exhibitors']];
   const docs = docNames.map(([title, audience], i) => ({ id: i + 1, title, audience, file: title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.pdf', size: ri(180, 4200), uploaded: daysAfter(iso(2026, 6, 1), ri(0, 120)), visible: chance(.9) }));
 
@@ -236,7 +236,8 @@
     { id: 1, name: 'Unpaid Deposits reminder', type: 'Unpaid Deposits', subject: 'Ploughing 2027 - Payment Reminder - Deposit Due', body: 'Dear {first_name},\n\nOur records show the deposit for order #{order_number} ({company}) is still outstanding. The balance due is {balance_due}.\n\nYou can pay online through your exhibitor portal.\n\nKind regards,\nNPA Exhibitor Team', days: 5, max: 4, account: true, contact: true, ccAdmin: false, enabled: true, updated: iso(2026, 3, 24, 13, 43) },
     { id: 2, name: 'Insurance Documents Reminder', type: 'Insurance Documents', subject: 'Insurance Documents Required', body: 'Dear {first_name},\n\nWe have not yet received a valid insurance document for order #{order_number}. Please upload it through your exhibitor portal.\n\nKind regards,\nNPA Exhibitor Team', days: 6, max: 4, account: true, contact: true, ccAdmin: false, enabled: true, updated: iso(2026, 3, 24, 13, 43) },
     { id: 3, name: 'Incomplete Bookings Reminder', type: 'Incomplete Bookings', subject: 'Looks like you forgot something', body: 'Dear {first_name},\n\nYou started a booking for Ploughing 2027 but have not submitted it yet. Log back in to finish it and secure your space.\n\nKind regards,\nNPA Exhibitor Team', days: 6, max: 4, account: true, contact: true, ccAdmin: false, enabled: true, updated: iso(2026, 3, 24, 13, 44) },
-    { id: 4, name: 'Final Payment Deadline', type: 'Final Payment Deadlines', subject: 'Final payment due by 30 June 2027', body: 'Dear {first_name},\n\nA reminder that the final balance of {balance_due} for order #{order_number} is due by 30 June 2027.\n\nKind regards,\nNPA Exhibitor Team', days: 7, max: 3, account: true, contact: false, ccAdmin: true, enabled: false, updated: iso(2026, 4, 23, 21, 1) }];
+    { id: 4, name: 'Final Payment Deadline', type: 'Final Payment Deadlines', subject: 'Final payment due by 30 June 2027', body: 'Dear {first_name},\n\nA reminder that the final balance of {balance_due} for order #{order_number} is due by 30 June 2027.\n\nKind regards,\nNPA Exhibitor Team', days: 7, max: 3, account: true, contact: false, ccAdmin: true, enabled: false, updated: iso(2026, 4, 23, 21, 1) },
+    { id: 5, name: 'Security Details Reminder', type: 'Security Details', subject: 'Please send your security details', body: 'Dear {first_name},\n\nPlease upload your security details for {company} on your exhibitor dashboard. Once the NPA confirms them you will not receive this reminder again.\n\nKind regards,\nNPA Exhibitor Team', days: 7, max: 3, account: true, contact: true, ccAdmin: false, enabled: true, updated: iso(2026, 10, 20, 10, 0) }];
   const schedules = [
     { id: 1, configId: 1, day: 'Wednesday', time: '07:32', enabled: true, lastRun: iso(2026, 10, 28, 7, 32), nextRun: iso(2026, 11, 4, 7, 32) },
     { id: 2, configId: 2, day: 'Wednesday', time: '09:20', enabled: true, lastRun: iso(2026, 10, 28, 9, 20), nextRun: iso(2026, 11, 4, 9, 20) },
@@ -246,6 +247,72 @@
   orders.filter(o => o.insuranceStatus === 'Rejected').forEach(o => emailLogs.push({ id: emailLogs.length + 1, orderId: o.id, kind: 'Reminder', type: 'Insurance Documents', configId: 2, n: 1, at: iso(2026, 10, 28, 9, 20), subject: emailConfigs[1].subject, to: o.account.email, status: 'Delivered' }));
   orders.filter(o => !o.submitted).forEach(o => emailLogs.push({ id: emailLogs.length + 1, orderId: o.id, kind: 'Reminder', type: 'Incomplete Bookings', configId: 3, n: 2, at: iso(2026, 10, 28, 9, 10), subject: emailConfigs[2].subject, to: o.account.email, status: chance(.9) ? 'Delivered' : 'Bounced' }));
   emailLogs.push({ id: emailLogs.length + 1, orderId: null, kind: 'Broadcast', type: 'All exhibitors', configId: null, n: null, at: iso(2026, 10, 14, 11, 2), subject: 'Ploughing 2027 - indoor floor plans now available', to: '38 recipients', status: 'Delivered' });
+
+  // ---------- client wishlist ----------
+  // Trade pack address, T&C signature, security details, wristbands, statements and credit notes per order.
+  const STAFF = ['amoran', 'jdelaney', 'accounts'];
+  orders.forEach((o, i) => {
+    o.tradePack = chance(.15) ? { alt: true, addr1: ri(1, 30) + ' Industrial Estate', city: pick(Object.values(TOWNS)), county: pick(Object.keys(TOWNS)), eircode: 'R' + ri(10, 99) + ' ' + hex(4).toUpperCase(), attn: o.account.first + ' ' + o.account.last } : { alt: false, addr1: '', city: '', county: '', eircode: '', attn: '' };
+    o.signature = o.submitted ? { name: o.account.first + ' ' + o.account.last, at: o.submittedDate } : null;
+    const sec = !o.submitted ? 'Not provided' : pick(['Not provided', 'Not provided', 'Submitted', 'Confirmed']);
+    o.security = { status: sec, company: sec === 'Not provided' ? '' : pick(['Midland Security Services', 'Own staff', 'Guardline Security']), contact: sec === 'Not provided' ? '' : o.account.first + ' ' + o.account.last, phone: sec === 'Not provided' ? '' : o.company.mobile, staff: sec === 'Not provided' ? 0 : ri(1, 4), file: sec === 'Not provided' ? '' : 'security_' + o.id + '.pdf' };
+    o.wristbands = { included: o.clientType === 'IN' ? 2 : Math.max(2, Math.ceil(o.frontage / 3)), extra: o.submitted && chance(.3) ? ri(1, 6) : 0 };
+    o.priceOverride = null;
+    o.credits = o.submitted && chance(.12) ? [{ id: 'CN-' + (2700 + i), at: daysAfter(o.submittedDate, ri(5, 30)), amount: pick([50, 120, 237]), reason: pick(['Reduced frontage', 'Duplicate charge', 'Goodwill gesture']) }] : [];
+  });
+  // Online booking types beyond indoor and outdoor stands.
+  settings.bookingTypes = [
+    { k: 'outdoor', name: 'Outdoor exhibition space', online: true, price: null }, { k: 'indoor', name: 'Indoor stands', online: true, price: null },
+    { k: 'livestock', name: 'Livestock pens', online: true, price: 85, unit: 'per pen' }, { k: 'porch', name: 'Porch units', online: true, price: 650, unit: 'per porch' },
+    { k: 'bars', name: 'Bars', online: false, price: 2400, unit: 'per bar licence' }, { k: 'shops', name: 'Shops', online: true, price: 900, unit: 'per shop unit' }];
+  settings.wristbandPrice = 15;
+  settings.insuranceCriteria = [
+    { check: 'Cover meets the NPA minimum amount', reason: 'Insufficient Monetary Coverage' }, { check: 'Cover runs for all event and build days', reason: 'Insufficient Duration Coverage' },
+    { check: 'Signed by the broker', reason: 'Not Signed by Broker' }, { check: 'Stamped by the broker', reason: 'Not Stamped by Broker' },
+    { check: 'On the NPA official form', reason: 'Not on NPA Official Form' }, { check: 'Every section completed', reason: 'Not Fully Completed' },
+    { check: "Employers' liability included (if they have staff)", reason: "Missing Employers' Liability Insurance" }];
+  users.filter(u => !u.staff).forEach(u => { u.perms.extras = chance(.25) ? [pick(['livestock', 'porch', 'shops'])] : []; });
+
+  // Correspondence: logged calls, notes and emails in the shared inbox.
+  const CALLS = ['Asked about moving to a bigger site', 'Wants to share with a sister company', 'Query on their invoice', 'Chasing insurance upload', 'Asked when stand numbers are out', 'Needs a second 6kW connection', 'Confirmed PO is on its way'];
+  const correspondence = [];
+  orders.slice(0, 26).forEach((o, i) => {
+    const n = ri(1, 3);
+    for (let j = 0; j < n; j++) {
+      const kind = pick(['Call', 'Call', 'Email in', 'Email out', 'Note']);
+      correspondence.push({ id: correspondence.length + 1, userId: o.userId, orderId: o.id, kind, dir: kind === 'Call' ? pick(['Incoming', 'Outgoing']) : '', at: daysAfter(iso(2026, 9, 20), ri(0, 42)), who: pick(STAFF),
+        subject: kind === 'Note' ? 'Internal note' : pick(CALLS), body: kind === 'Note' ? 'Prefers to be contacted by phone in the mornings.' : 'Spoke with ' + o.account.first + '. ' + pick(['Will confirm by Friday.', 'Sent them the site specifications.', 'No action needed.', 'Follow up next week.']),
+        followUp: kind === 'Call' && chance(.3) ? daysAfter(iso(2026, 11, 3), ri(1, 10)).slice(0, 10) : '' });
+    }
+  });
+  correspondence.sort((a, b) => b.at.localeCompare(a.at));
+
+  // Payments imported from Big Red Cloud (the accounts package).
+  const brc = [];
+  orders.filter(o => o.submitted).forEach((o, i) => {
+    if (!chance(.6)) return;
+    const full = chance(.4);
+    brc.push({ id: brc.length + 1, ref: 'BRC-' + (48100 + i * 7), at: daysAfter(o.submittedDate, ri(1, 20)), account: U(o).code, amount: +(full ? o.grandTotal : o.grandTotal / 2).toFixed(2), method: pick(['Stripe', 'Bank transfer', 'Card', 'Cheque']), orderId: o.id, status: 'Matched' });
+  });
+  for (let i = 0; i < 4; i++) brc.push({ id: brc.length + 1, ref: 'BRC-' + (49000 + i * 3), at: daysAfter(iso(2026, 10, 25), ri(0, 8)), account: pick(['', 'UNKNOWN', U(orders[ri(0, 20)]).code]), amount: pick([592.5, 1185, 975, 1450]), method: 'Bank transfer', orderId: null, status: 'Unmatched' });
+  brc.sort((a, b) => b.at.localeCompare(a.at));
+  function U(o) { return users.find(u => u.id === o.userId); }
+
+  // Two exhibitors entered twice (the "Shar's" in the wishlist).
+  const dupOf = [0, 3].map(ix => users[ix]);
+  dupOf.forEach((u, k) => {
+    const id = 800 + k;
+    users.push({ ...structuredClone(u), id, username: u.code.slice(0, 3) + String(+u.code.slice(3) + 50).padStart(3, '0'), code: u.code.slice(0, 3) + String(+u.code.slice(3) + 50).padStart(3, '0'), name: u.name + (k ? '' : ' Ltd'), lastLogin: iso(2026, 10, 12 + k, 10, 4), pastYears: [] });
+  });
+  const dupDecisions = [];
+
+  // Change history across records (who changed what, when).
+  const audit = [];
+  orders.forEach(o => o.history.forEach(h => audit.push({ at: h.at, who: h.who, record: (o.clientType === 'IN' ? 'IN' : 'OU') + ' Form # ' + o.id, href: '#/orders/' + o.id, what: h.what, changes: [] })));
+  [['amoran', 'Price band "Standard" (outdoor)', '#/settings/outdoor', [['18m depth price', '262', '268']]], ['jdelaney', 'User ' + users[2].username, '#/users/' + users[2].id, [['Assigned area', '', users[2].perms.area || 'Block 3 – Machinery']]],
+   ['CRM_ADMIN', 'Doc "Indoor Plans: Agri Pavilion"', '#/docs', [['Shown to', 'Indoor', 'Agri Pavilion']]], ['accounts', 'OU Form # ' + orders[4].id, '#/orders/' + orders[4].id, [['Paid in full', 'No', 'Yes']]]].forEach(([who, record, href, changes], i) =>
+    audit.push({ at: iso(2026, 10, 29 + (i % 3), 10 + i, 12), who, record, href, what: 'Changed ' + changes.map(c => c[0]).join(', '), changes }));
+  audit.sort((a, b) => b.at.localeCompare(a.at));
 
   // ---------- reports ----------
   const reports = [
@@ -269,5 +336,5 @@
     { at: iso(2026, 10, 30, 10, 44), icon: 'add', what: 'Woodbark Order Form # 1770', kind: 'Woodbark order', href: '#/woodbark/1770' },
     { at: iso(2026, 10, 30, 10, 12), icon: 'add', what: 'Woodbark Order Form # 1769', kind: 'Woodbark order', href: '#/woodbark/1769' }];
 
-  window.SEED = { VENUES, OUT_AREAS, blockOf, CATEGORIES, COUNTIES, COUNTRIES, settings, users, groups, orders, ins, payLogs, pos, woodbark, docs, emailConfigs, schedules, emailLogs, reports, formats, recent, tierFor };
+  window.SEED = { VENUES, OUT_AREAS, blockOf, correspondence, brc, dupDecisions, audit, CATEGORIES, COUNTIES, COUNTRIES, settings, users, groups, orders, ins, payLogs, pos, woodbark, docs, emailConfigs, schedules, emailLogs, reports, formats, recent, tierFor };
 })();

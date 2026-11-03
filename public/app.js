@@ -29,6 +29,7 @@ const YN = [['yes', 'Yes'], ['no', 'No']];
 const yn = (get) => YN.map(([v, l]) => [v, l, r => !!get(r) === (v === 'yes')]);
 
 const IC = {
+  phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
   sprig: '<path d="M12 22V8"/><path d="M12 8c0-3 2-5 4-6 0 3-1.5 5-4 6zM12 8c0-3-2-5-4-6 0 3 1.5 5 4 6zM12 13c1-2.5 3.5-4 6-4-1 2.5-3 4-6 4zM12 13c-1-2.5-3.5-4-6-4 1 2.5 3 4 6 4zM12 18c1-2.5 3.5-4 6-4-1 2.5-3 4-6 4zM12 18c-1-2.5-3.5-4-6-4 1 2.5 3 4 6 4z"/>',
   home: '<path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/>',
   users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
@@ -130,16 +131,17 @@ const NAV = [
   { items: [['Dashboard', '', 'home']] },
   { h: 'Authentication and Authorization', items: [['Groups', 'groups', 'group', 'groups/add'], ['Users', 'users', 'users', 'users/add', true]] },
   { h: 'Docs', items: [['Docs', 'docs', 'doc', 'docs/add']] },
-  { h: 'Order', items: [['Order forms', 'orders', 'form', 'orders/add', true], ['Stand allocation', 'allocation', 'map', null, true, toAllocate], ['Insurance reviews', 'insurance', 'shield', null, true, pendingIns],
+  { h: 'Order', items: [['Order forms', 'orders', 'form', 'orders/add', true], ['Stand allocation', 'allocation', 'map', null, true, toAllocate], ['Payments (Big Red Cloud)', 'payments', 'euro', null, false, () => D.brc.filter(p => p.status === 'Unmatched').length], ['Insurance reviews', 'insurance', 'shield', null, true, pendingIns],
     ['Corner allocations', 'corners', 'corner', null, true], ['Exhibition spaces', 'spaces', 'grid'], ['Purchase orders', 'pos', 'po', 'pos/add', false, pendingPO],
     ['Payment processing logs', 'paylogs', 'card']] },
+  { h: 'Activity', items: [['Correspondence & calls', 'correspondence', 'phone'], ['Change history', 'history', 'history'], ['Duplicate & shared entries', 'duplicates', 'copy', null, false, () => dupPairs().filter(p => !D.dupDecisions.find(d => d.key === p.key)).length]] },
   { h: 'Woodbark', items: [['Woodbark orders', 'woodbark', 'tree', 'woodbark/add', true]] },
   { h: 'Emails', items: [['Compose email', 'emails/compose', 'send', null, true], ['Reminder configurations', 'emails/configs', 'mail', 'emails/config/add'],
     ['Reminder schedules', 'emails/schedules', 'clock'], ['Email logs', 'emails/logs', 'list']] },
   { h: 'Report builder', items: [['Reports', 'reports', 'chart', 'reports/add', true], ['Formats', 'formats', 'file']] },
   { h: 'Settings', items: [['Categories', 'settings/categories', 'tag', 'settings/categories/add'], ['Corner inventories', 'corners', 'corner'], ['Counties', 'settings/counties', 'pin'],
     ['Countries', 'settings/countries', 'globe'], ['Electricity and litter', 'settings/electricity', 'bolt'], ['Indoor dates', 'settings/indoor', 'cal'],
-    ['Outdoor dates', 'settings/outdoor', 'cal'], ['System settings', 'settings/system', 'cog'], ['Text blocks', 'settings/text', 'text'], ['Woodbark rates', 'settings/woodbark', 'euro']] }];
+    ['Outdoor dates', 'settings/outdoor', 'cal'], ['Booking types & prices', 'settings/bookings', 'euro'], ['Insurance criteria', 'settings/insurance', 'shield'], ['System settings', 'settings/system', 'cog'], ['Text blocks', 'settings/text', 'text'], ['Woodbark rates', 'settings/woodbark', 'euro']] }];
 
 let path = '';
 function navHtml() {
